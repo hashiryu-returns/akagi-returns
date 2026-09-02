@@ -40,7 +40,7 @@ mode = "chromium"
 [capture.chromium]
 executable = ""
 user_data_dir = ""
-start_url = "https://mahjongsoul.game.yo-star.com/"
+start_url = "https://game.mahjongsoul.com/"
 cft_channel = "stable"
 force_cft = false
 extra_args = []
