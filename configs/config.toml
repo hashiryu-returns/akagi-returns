@@ -1,0 +1,115 @@
+[general]
+first_run_completed = true
+developer_mode = false
+
+[logging]
+dir = "./logs"
+level = "info"
+all_level = "info"
+
+[platform]
+kind = "Majsoul"
+
+[proxy]
+enabled = true
+addr = "127.0.0.1:23410"
+ca_dir = "./ca"
+rewrite_certificate_report = true
+block_telemetry = true
+
+[bot]
+enabled = true
+active_4p = "mortal"
+active_3p = ""
+auto_sync = true
+dir = "mjai_bot"
+
+[bot.api]
+enabled = false
+base_url = "https://mjapi.shinkuan.me"
+key = ""
+model_4p = ""
+model_3p = ""
+proxy_enabled = false
+proxy = ""
+react_timeout_ms = 3000
+
+[capture]
+mode = "chromium"
+
+[capture.chromium]
+executable = ""
+user_data_dir = ""
+start_url = "https://mahjongsoul.game.yo-star.com/"
+cft_channel = "stable"
+force_cft = false
+extra_args = []
+
+[capture.http]
+record_all = false
+bodies = true
+max_body_bytes = 262144
+static_assets = false
+
+[autoplay]
+enabled = true
+
+[autoplay.majsoul]
+pre_click_delay_min_ms = 1000
+pre_click_delay_max_ms = 3000
+inter_click_delay_ms = 300
+hover_delay_ms = 200
+click_hold_ms = 100
+verify_input_ms = 300
+click_retries = 2
+reload_after_failures = 3
+dealer_first_discard_extra_delay_ms = 3000
+
+[autoplay.delay]
+mode = "lua"
+min_delay_ms = 600
+min_button_delay_ms = 1600
+distribution = "log_normal"
+bank_on_long_thought = true
+riichi_extra_ms = 0
+kan_extra_ms = 0
+safety_margin_ms = 1000
+bank_use_fraction = 0.45
+bank_max_single_ms = 8000
+no_budget_cap_ms = 15000
+
+[autoplay.delay.lognormal]
+claim = [
+    0.26,
+    0.57,
+]
+dahai_tedashi = [
+    0.87,
+    0.62,
+]
+dahai_tsumogiri = [
+    0.52,
+    0.53,
+]
+hora = [
+    0.15,
+    0.5,
+]
+post_call_dahai = [
+    0.52,
+    0.42,
+]
+reach = [
+    1.1,
+    0.55,
+]
+
+[overlay]
+enabled = false
+top_n = 3
+opacity = 0.95
+always_on_top = true
+
+[network]
+github_mirror_mode = "auto"
+github_custom_mirror = ""

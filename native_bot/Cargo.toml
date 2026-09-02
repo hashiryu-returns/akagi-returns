@@ -1,0 +1,24 @@
+[package]
+name = "native_bot"
+version = "0.1.0"
+edition = "2021"
+description = "Built-in, libriichi-free mahjong bot for Akagi: shared obs/action codec and BC-trained CNN inference (candle)."
+license = "Apache-2.0"
+
+[lib]
+name = "native_bot"
+
+[features]
+# `infer` pulls in candle + safetensors for the neural-net inference path.
+# The obs/action codec do NOT need it, so keep it optional for a lean build.
+default = ["infer"]
+infer = ["dep:candle-core", "dep:candle-nn", "dep:safetensors"]
+
+[dependencies]
+riichienv-core = "0.4.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+candle-core = { version = "0.9", optional = true }
+candle-nn = { version = "0.9", optional = true }
+safetensors = { version = "0.6", optional = true }

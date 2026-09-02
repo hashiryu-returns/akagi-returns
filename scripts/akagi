@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+# Single entry point for running Akagi from this source checkout (macOS).
+#
+#   scripts/akagi setup        install the python runtime and frontend deps
+#   scripts/akagi run [args]   build what's missing, then launch
+#   scripts/akagi clean        reclaim disk without touching configs/ or data/
+#   scripts/akagi dedupe       hardlink identical files across bot venvs
+#   scripts/akagi doctor       show resolved paths and disk usage
+#
+# Akagi resolves its data directories relative to the executable, which for a
+# cargo build means target/debug/. Everything that must survive a rebuild
+# therefore lives in configs/ and data/ at the repo root; `run` links those
+# into place so target/ stays disposable.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+EXE_DIR="${ROOT}/target/debug"
+export PATH="/opt/homebrew/opt/node@20/bin:/opt/homebrew/bin:${HOME}/.cargo/bin:${PATH}"
+
+HOST_TRIPLE="$(rustc -vV | awk '/host:/ { print $2 }')"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# `ln -s` onto an existing directory nests the link inside it, so replace
+# whatever is already there.
+link() {
+  local src="$1" dst="$2"
+  [[ -L "$dst" ]] || rm -rf "$dst"
+  ln -sfn "$src" "$dst"
+}
+
+wire_dirs() {
+  mkdir -p "${EXE_DIR}" "${ROOT}/configs" \
+           "${ROOT}/data/ca" "${ROOT}/data/logs" \
+           "${ROOT}/data/history" "${ROOT}/data/chrome-profile"
+  link "${ROOT}/configs"             "${EXE_DIR}/configs"
+  link "${ROOT}/runtime"             "${EXE_DIR}/runtime"
+  link "${ROOT}/mjai_bot"            "${EXE_DIR}/mjai_bot"
+  link "${ROOT}/data/ca"             "${EXE_DIR}/ca"
+  link "${ROOT}/data/logs"           "${EXE_DIR}/logs"
+  link "${ROOT}/data/history"        "${EXE_DIR}/history"
+  link "${ROOT}/data/chrome-profile" "${EXE_DIR}/chrome-profile"
+}
+
+ensure_runtime() {
+  if [[ ! -x "${ROOT}/runtime/python/${HOST_TRIPLE}/bin/python3" ]]; then
+    echo "==> fetching bundled python + uv"
+    "${ROOT}/scripts/fetch-runtime.sh"
+  fi
+}
+
+# node_modules is a build cache like target/: absent is normal, and only a
+# frontend rebuild needs it.
+ensure_frontend() {
+  if [[ ! -f "${ROOT}/frontend/dist/index.html" ]]; then
+    [[ -d "${ROOT}/frontend/node_modules" ]] || {
+      echo "==> installing frontend deps"
+      (cd "${ROOT}/frontend" && npm ci)
+    }
+    echo "==> building frontend"
+    (cd "${ROOT}/frontend" && npm run build)
+  fi
+}
+
+# Akagi gives every bot its own uv venv, so bots sharing a dependency set
+# (mortal and mortal3p both pull the same torch) each pay for it. Installed
+# wheels are byte-identical, so collapsing them onto one inode is free: uv
+# replaces files rather than writing through them, so a re-sync just unshares.
+#
+# Only lib/ is considered. bin/ holds the interpreter shims that Akagi
+# repoints per venv (see repoint_venv in src/bot/runtime.rs), and pyvenv.cfg
+# carries the venv's own identity — sharing either across venvs is wrong.
+cmd_dedupe() {
+  local py="${ROOT}/runtime/python/${HOST_TRIPLE}/bin/python3"
+  [[ -x "$py" ]] || die "bundled python missing — run: scripts/akagi setup"
+  "$py" - "${ROOT}/mjai_bot" <<'PY'
+import hashlib, os, sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+venvs = sorted(p / "lib" for p in root.glob("*/.akagi/venv") if (p / "lib").is_dir())
+if len(venvs) < 2:
+    print("nothing to dedupe (need two or more bot venvs)")
+    raise SystemExit
+
+def digest(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.digest()
+
+base, others = venvs[0], venvs[1:]
+index = {}
+for dirpath, _, names in os.walk(base):
+    for name in names:
+        p = Path(dirpath, name)
+        if p.is_symlink() or not p.is_file():
+            continue
+        index[str(p.relative_to(base))] = p
+
+linked = saved = 0
+for venv in others:
+    for dirpath, _, names in os.walk(venv):
+        for name in names:
+            p = Path(dirpath, name)
+            if p.is_symlink() or not p.is_file():
+                continue
+            twin = index.get(str(p.relative_to(venv)))
+            if twin is None:
+                continue
+            a, b = p.stat(), twin.stat()
+            if a.st_ino == b.st_ino or a.st_size != b.st_size:
+                continue
+            if digest(p) != digest(twin):
+                continue
+            tmp = p.with_name(p.name + ".dedupe-tmp")
+            try:
+                os.link(twin, tmp)
+                os.replace(tmp, p)
+            except OSError:
+                tmp.unlink(missing_ok=True)
+                continue
+            linked += 1
+            saved += a.st_size
+
+print(f"hardlinked {linked} files, reclaimed {saved / 1024**2:.0f} MB")
+PY
+}
+
+cmd_setup() {
+  ensure_runtime
+  echo "==> installing frontend deps"
+  (cd "${ROOT}/frontend" && npm ci)
+  echo "==> building frontend"
+  (cd "${ROOT}/frontend" && npm run build)
+  wire_dirs
+  cmd_dedupe
+  echo "setup complete — run: scripts/akagi run"
+}
+
+cmd_run() {
+  ensure_runtime
+  ensure_frontend
+  wire_dirs
+  cd "${ROOT}"
+  # `custom-protocol` embeds frontend/dist; without it the window loads the
+  # Vite dev server at localhost:1420 and shows a connection error.
+  exec cargo run --features custom-protocol -- "$@"
+}
+
+# Only ever removes regenerable bytes. configs/, data/ca, data/history and
+# data/chrome-profile (the Mahjong Soul session) are never touched.
+cmd_clean() {
+  local before after
+  before=$(du -sk "${ROOT}" | awk '{print $1}')
+
+  echo "==> rust build artifacts"
+  rm -rf "${ROOT}/target"
+  echo "==> frontend build cache"
+  rm -rf "${ROOT}/frontend/node_modules" "${ROOT}/frontend/dist"
+  echo "==> tauri codegen"
+  rm -rf "${ROOT}/gen"
+  echo "==> logs"
+  rm -rf "${ROOT}/data/logs"/*
+  echo "==> chromium caches (session and site data kept)"
+  local p="${ROOT}/data/chrome-profile"
+  rm -rf "${p}/Default/Cache" "${p}/Default/Code Cache" "${p}/Default/GPUCache" \
+         "${p}/Default/DawnGraphiteCache" "${p}/Default/DawnWebGPUCache" \
+         "${p}/Default/Service Worker" "${p}/GraphiteDawnCache" \
+         "${p}/GPUPersistentCache" "${p}/optimization_guide_model_store" \
+         "${p}/Snapshots" "${p}"/BrowserMetrics*.pma
+  echo "==> python bytecode"
+  find "${ROOT}/runtime" "${ROOT}/mjai_bot" -type d -name '__pycache__' \
+    -exec rm -rf {} + 2>/dev/null || true
+
+  after=$(du -sk "${ROOT}" | awk '{print $1}')
+  echo
+  printf 'reclaimed %.1f GB (%.1f -> %.1f GB)\n' \
+    "$(bc -l <<<"($before - $after) / 1048576")" \
+    "$(bc -l <<<"$before / 1048576")" \
+    "$(bc -l <<<"$after / 1048576")"
+  echo "restore with: scripts/akagi setup"
+}
+
+cmd_doctor() {
+  echo "root:   ${ROOT}"
+  echo "target: ${HOST_TRIPLE}"
+  echo
+  echo "config:  ${ROOT}/configs/config.toml $([[ -f "${ROOT}/configs/config.toml" ]] && echo OK || echo MISSING)"
+  echo "delay:   ${ROOT}/configs/delay.lua $([[ -f "${ROOT}/configs/delay.lua" ]] && echo OK || echo MISSING)"
+  echo "python:  $([[ -x "${ROOT}/runtime/python/${HOST_TRIPLE}/bin/python3" ]] && echo OK || echo MISSING)"
+  echo "uv:      $([[ -x "${ROOT}/runtime/uv/${HOST_TRIPLE}/uv" ]] && echo OK || echo MISSING)"
+  echo "frontend: $([[ -f "${ROOT}/frontend/dist/index.html" ]] && echo OK || echo 'MISSING (run setup)')"
+  echo
+  echo "installed bots:"
+  for d in "${ROOT}"/mjai_bot/*/; do
+    [[ -f "${d}manifest.toml" ]] || continue
+    printf '  %-10s %s\n' "$(basename "$d")" "$(du -sh "$d" | awk '{print $1}')"
+  done
+  echo
+  echo "disk usage:"
+  du -sh "${ROOT}"/{src,frontend,runtime,mjai_bot,data,target} 2>/dev/null \
+    | sort -h | sed 's|'"${ROOT}"'/|  |'
+  echo "  ------"
+  du -sh "${ROOT}" | sed 's|'"${ROOT}"'|  total|'
+}
+
+case "${1:-}" in
+  setup)  shift; cmd_setup "$@" ;;
+  run)    shift; cmd_run "$@" ;;
+  clean)  shift; cmd_clean "$@" ;;
+  dedupe) shift; cmd_dedupe "$@" ;;
+  doctor) shift; cmd_doctor "$@" ;;
+  ''|-h|--help)
+    sed -n '2,11p' "$0" | sed 's|^# \{0,1\}||'
+    ;;
+  *) die "unknown command: $1 (try --help)" ;;
+esac
