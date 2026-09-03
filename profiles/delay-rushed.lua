@@ -21,11 +21,6 @@
 -- decision collapses onto the budget cap. Only delay-calibrated.lua fixes it.
 -- Use `calibrated`. See majsoul-wire-timing docs/03-fitting-a-delay-model.md.
 
--- Room calibration, rewritten in place by apply-profile.sh. Keep the
--- line's shape (`local ROOM_MU_SHIFT = <number>`) or the patch will not
--- find it.
-local ROOM_MU_SHIFT = 0.00
-
 local ROUTINE = {
   tedashi   = { honor = 0.25, terminal = 0.10, middle = 0.10 },
   tsumogiri = { honor = 0.30, terminal = 0.20, middle = 0.15 },
@@ -60,7 +55,7 @@ local function discard_think(ctx)
   end
   local params = THINK[giri][ctx.tile_class or "default"]
                  or THINK[giri].default
-  local think = ctx.lognormal(params[1] + ROOM_MU_SHIFT, params[2])
+  local think = ctx.lognormal(params[1], params[2])
   if giri == "tedashi" and ctx.junme ~= nil and ctx.junme > 0 then
     think = think * (1.0 + 0.012 * math.min(ctx.junme, 15))
   end

@@ -2,8 +2,7 @@
 --
 -- Slowest of the three. Kept as the reference point every other profile is
 -- a diff against, and as the fallback if a change makes things worse. The
--- numbers below are the factory ones; the only addition is the
--- ROOM_MU_SHIFT constant, which is 0.00 here and therefore a no-op.
+-- numbers are the factory ones, unaltered.
 --
 -- Do not read "factory" as "safest". Measured against Jade opponents
 -- it is the WORST-matching of the three: it runs ~19% slow because the
@@ -75,11 +74,6 @@
 -- what is being discarded, how deep the hand is, and whether someone
 -- has declared riichi.
 
--- Room calibration, rewritten in place by apply-profile.sh. There is no
--- room field in ctx, so this cannot be a runtime branch. Keep the line's
--- shape (`local ROOM_MU_SHIFT = <number>`) or the patch will not find it.
-local ROOM_MU_SHIFT = 0.00
-
 -- Probability that a discard is routine (no real thought). These are
 -- MIXTURE WEIGHTS, not the measured fast-fractions directly: the
 -- routine cluster only puts ~84% of its own mass under 1.2s and the
@@ -132,7 +126,7 @@ local function discard_think(ctx)
   end
   local params = THINK[giri][ctx.tile_class or "default"]
                  or THINK[giri].default
-  local think = ctx.lognormal(params[1] + ROOM_MU_SHIFT, params[2])
+  local think = ctx.lognormal(params[1], params[2])
   -- Deeper hands are read longer — but only tedashi shows this
   -- (measured tsumogiri medians are junme-flat).
   if giri == "tedashi" and ctx.junme ~= nil and ctx.junme > 0 then

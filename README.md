@@ -163,7 +163,6 @@ and nothing else about the click sequence is.
 
 ```bash
 scripts/apply-profile.sh calibrated            # the one to use
-scripts/apply-profile.sh calibrated --room bronze
 ```
 
 | Profile | What it is |
@@ -187,10 +186,16 @@ openings landing in a single whole-second bucket, against 15% for humans. This
 is the single most identifiable thing either of them does, and it is why
 "factory" should not be read as "safest".
 
-`--room` adds a per-room offset. Bronze opponents are measurably slower
-(+0.15 ln-seconds, 95% CI [0.11, 0.18]); silver and jade were both measured and
-came out indistinguishable, so everything above bronze uses the same numbers
-and the flag only matters when dropping down.
+**The same profile everywhere.** Silver and jade were both measured and came
+out indistinguishable, so one set of numbers covers the rooms this account will
+spend its life in. Bronze opponents are genuinely slower (+0.15 ln-seconds, 95%
+CI [0.11, 0.18]) and an earlier `--room bronze` flag shifted to match, but it
+has been removed. It applied only for the dozen games it takes a new account to
+leave bronze, and forgetting to take it off afterwards means running every
+higher room ~16% slow — reintroducing by hand exactly the bias `calibrated`
+exists to remove. A bronze seat discarding at the human median is unremarkable
+anyway: every ranked player passed through bronze, so "faster than the bronze
+average" describes everyone on their way up.
 
 The script patches the seven timing keys in `configs/config.toml` in place and
 rewrites `configs/delay.lua`. It touches nothing else — the start URL, overlay,

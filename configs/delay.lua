@@ -87,16 +87,6 @@
 --   ctx.budget          { fixed_ms, add_ms, elapsed_ms } or nil
 --   ctx.rng()           uniform random in [0, 1)
 --   ctx.lognormal(mu, sigma)  log-normal sample in SECONDS
---
--- There is no room field in ctx, so the room adjustment cannot be a
--- runtime branch — apply-profile.sh rewrites the constant below instead.
--- Keep the line's shape (`local ROOM_MU_SHIFT = <number>`) or the patch
--- will not find it.
---
--- 0.00 targets Jade, and Silver measures the same. Bronze is slower;
--- see majsoul-wire-timing docs/03-fitting-a-delay-model.md for the per-room values and their
--- confidence intervals.
-local ROOM_MU_SHIFT = 0.00  -- room: silver
 
 -- Probability that a discard is routine (no real thought) — a MIXTURE
 -- WEIGHT, not a measured fast-fraction. Factory values, unchanged: the
@@ -139,13 +129,12 @@ end
 local function discard_think(ctx)
   local giri = ctx.tsumogiri and "tsumogiri" or "tedashi"
   if ctx.rng() < routine_probability(ctx, giri) then
-    -- Routine flick: tight cluster around one second. Deliberately not
-    -- shifted by room — a reflex discard is a reflex at every rank.
+    -- Routine flick: tight cluster around one second.
     return ctx.lognormal(0.0, 0.18)
   end
   local params = THINK[giri][ctx.tile_class or "default"]
                  or THINK[giri].default
-  local think = ctx.lognormal(params[1] + ROOM_MU_SHIFT, params[2])
+  local think = ctx.lognormal(params[1], params[2])
   -- Deeper hands are read longer — but only tedashi shows this
   -- (measured tsumogiri medians are junme-flat).
   if giri == "tedashi" and ctx.junme ~= nil and ctx.junme > 0 then
