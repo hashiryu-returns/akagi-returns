@@ -74,8 +74,7 @@ and Chromium caches — all regenerable, and worth several gigabytes.
    Chromium capture mode, since it works by synthesising real mouse input at
    reconstructed canvas coordinates.
 6. **Tune the timing** with `scripts/apply-profile.sh`, or by editing
-   `configs/delay.lua` directly. It hot-reloads on save, so think time can be
-   adjusted between hands. See [Timing profiles](#timing-profiles).
+   `configs/delay.lua` directly — see [Timing profiles](#timing-profiles).
 7. **Review afterwards** on the History page: every game is kept as mjai JSONL
    with per-game stats.
 
@@ -162,12 +161,12 @@ and nothing else about the click sequence is.
 `profiles/` holds three models, applied with one command:
 
 ```bash
-scripts/apply-profile.sh calibrated            # the one to use
+scripts/apply-profile.sh calibrated
 ```
 
 | Profile | What it is |
 | --- | --- |
-| `calibrated` | Fitted to opponents measured in our own gateway logs. **Use this.** |
+| `calibrated` | Fitted to human opponents measured in real gateway logs. **Use this.** |
 | `factory` | Akagi's shipped model, unmodified. Runs ~19% slow. |
 | `rushed` | Faster than any measured human. A negative control, not a setting. |
 
@@ -186,21 +185,14 @@ openings landing in a single whole-second bucket, against 15% for humans. This
 is the single most identifiable thing either of them does, and it is why
 "factory" should not be read as "safest".
 
-**The same profile everywhere.** Silver and jade were both measured and came
-out indistinguishable, so one set of numbers covers the rooms this account will
-spend its life in. Bronze opponents are genuinely slower (+0.15 ln-seconds, 95%
-CI [0.11, 0.18]) and an earlier `--room bronze` flag shifted to match, but it
-has been removed. It applied only for the dozen games it takes a new account to
-leave bronze, and forgetting to take it off afterwards means running every
-higher room ~16% slow — reintroducing by hand exactly the bias `calibrated`
-exists to remove. A bronze seat discarding at the human median is unremarkable
-anyway: every ranked player passed through bronze, so "faster than the bronze
-average" describes everyone on their way up.
+One profile covers every room. Silver and jade were measured and came out
+indistinguishable, so there is nothing to switch between as an account climbs.
 
 The script patches the seven timing keys in `configs/config.toml` in place and
-rewrites `configs/delay.lua`. It touches nothing else — the start URL, overlay,
-bot selection and CA settings survive, which an earlier whole-file version of
-this script did not manage.
+copies the chosen `profiles/delay-*.lua` over `configs/delay.lua`. It touches
+nothing else: the start URL, overlay, bot selection and CA settings survive.
+Akagi reloads `delay.lua` when it changes, so a profile can be swapped between
+hands without restarting.
 
 ### Where the reasoning lives
 
@@ -254,7 +246,7 @@ part of the fit.
 ├── frontend/               React + Vite + Tailwind UI
 │   └── src/
 │       ├── routes/         Overview, GameDashboard, Bots, History, Review, Logs,
-│       │                 Settings, Setup, Overlay, and the two debug views
+│       │                   Settings, Setup, Overlay, and the two debug views
 │       ├── components/     UI components (shadcn/ui in components/ui)
 │       ├── tiles/          Dashboard tiles (hand, risk chart, recommendation)
 │       ├── stores/         Zustand state
@@ -266,7 +258,7 @@ part of the fit.
 ├── configs/                Your config.toml + delay.lua  (tracked)
 ├── data/                   Runtime state: CA, logs, history, profiles/
 ├── mjai_bot/               Installed bots + their uv venvs  (managed by Akagi)
-├── profiles/               Autoplay timing profiles + shared autoplay.toml
+├── profiles/               Autoplay timing models (≠ the browser profiles above)
 ├── runtime/                Bundled python + uv binaries
 ├── scripts/
 │   ├── akagi               setup / run / profiles / clean / dedupe / doctor
