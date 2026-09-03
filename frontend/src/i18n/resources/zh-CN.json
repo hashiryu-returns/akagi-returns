@@ -404,6 +404,7 @@
     "user_data_dir": "用户数据目录",
     "user_data_dir_hint": "留空则使用 config 目录下默认的 Akagi profile。",
     "browser_profile": "浏览器配置文件",
+    "browser_profile_overridden": "本次运行使用启动参数 --profile 指定的“{{name}}”。如需使用配置中的档案，请不带该参数重新启动。",
     "browser_profile_hint": "指定独立的浏览器配置文件目录，各自拥有不同的 device_id 与登录状态。留空则使用共用的默认配置。仅支持字母、数字、- 和 _。",
     "force_cft": "使用 Chrome for Testing",
     "cft_title": "Chrome for Testing",
@@ -866,16 +867,12 @@
     },
     "entries": {
       "v3_7_0": {
-        "title": "麻雀一番街自动打牌,对局复盘(Beta)",
-        "rc_autoplay_title": "麻雀一番街自动打牌",
-        "rc_autoplay_desc": "让 Akagi 在麻雀一番街自动帮你出牌、鸣牌与立直,全程免动手,四麻与三麻均支持。",
+        "title": "对局复盘(Beta)",
         "review_title": "对局复盘(Beta)",
         "review_desc": "将历史记录中的对局提交给 AI 进行整场复盘,在 MJOT 查看器中查看每一手与 AI 选择的一致程度,并可生成链接分享结果。"
       },
       "v3_6_0": {
-        "title": "天凤自动打牌,更新来源可选择",
-        "tenhou_autoplay_title": "天凤自动打牌",
-        "tenhou_autoplay_desc": "让 Akagi 在天凤自动帮你出牌、鸣牌与立直,全程免动手。",
+        "title": "更新来源可选择",
         "update_source_title": "更新来源可选择",
         "update_source_desc": "自动更新现在可以选择下载来源,并提供镜像选项,在 GitHub 较慢的地区也能更快、更稳定地更新。"
       },

@@ -115,7 +115,11 @@ impl Default for ChromiumConfig {
             executable: String::new(),
             user_data_dir: String::new(),
             profile: String::new(),
-            start_url: "https://game.maj-soul.com/1/".to_string(),
+            // JP, matching the first entry of the server list the Settings UI
+            // offers. Upstream defaults to CN here; leaving it that way meant a
+            // freshly written config disagreed with what the UI seeds and
+            // opened a server this fork is not used against.
+            start_url: "https://game.mahjongsoul.com/".to_string(),
             cft_channel: "stable".to_string(),
             force_cft: false,
             extra_args: vec![],

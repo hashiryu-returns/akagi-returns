@@ -93,30 +93,37 @@ That split is what makes `target/` fully disposable.
 
 ### Browser profiles
 
-Pass `--profile` at launch to pick a browser profile. Directories live under
-`data/profiles/`, one per name, with `default/` when nothing is given:
+Pass `--profile` at launch to pick a browser profile. Each one is a directory
+under `data/profiles/`, and omitting the flag uses `default`:
 
 ```bash
 scripts/akagi run --profile west
 ```
 
-The flag overrides `capture.chromium.profile` for that run only and is never
-written back, so the file stays whatever you set it to. Set the config key
-instead if one profile is your normal choice.
+A name is created on first use rather than declared in advance: if `west` does
+not exist yet it is made on the spot, logged out and with a fresh identity.
+Return to the same name and you get the same directory back, so the login, the
+verification you already passed, and the `device_id` all persist. That is the
+point of naming them — and the reason a typo matters, since a misspelled name
+is a valid new profile rather than an error.
 
-The reason to use it is `device_id`: a UUID Mahjong Soul mints on first visit,
-keeps in local storage, and sends with every login. It lives in the profile
-directory, so every account played through one profile reports the same value
-and is trivially grouped. Separate profiles report separate values.
+The reason to keep them apart is `device_id`: a UUID Mahjong Soul mints on
+first visit, keeps in local storage, and sends with every login. It lives in
+the profile directory, so every account played through one profile reports the
+same value and is trivially grouped. Separate profiles report separate values.
 
 Local storage is scoped per origin, so the JP and EN servers already mint
-different IDs inside one profile. This setting is for keeping *several accounts
-on the same server* apart.
+different IDs inside one profile. Naming profiles is for keeping *several
+accounts on the same server* apart.
 
-Two things worth knowing before using it. A new profile starts logged out, and
-Mahjong Soul will email a verification code on the first login. And separation
-is not free elsewhere — a shared egress IP still links the accounts, so this
-removes one join key rather than all of them.
+Two things worth knowing before relying on it. A new profile starts logged out,
+and Mahjong Soul will email a verification code on the first login. And the
+separation is not free elsewhere — a shared egress IP still links the accounts,
+so this removes one join key rather than all of them.
+
+For a profile you use every time, set it in the config instead of passing the
+flag. `--profile` wins for the run it is given on, is never written back to the
+file, and Settings shows the active name read-only while it is in effect:
 
 ```toml
 [capture.chromium]
@@ -124,17 +131,8 @@ profile = "west"      # → data/profiles/west, unless --profile says otherwise
 ```
 
 Names accept letters, digits, `-` and `_`. Anything else is rejected at launch
-rather than quietly rewritten, since a silently different directory would mean a
-silently different `device_id`.
-
-**A name is created on first use, not declared in advance.** Running
-`--profile west` when no `west` exists makes it, logged out and with a fresh
-`device_id`; there is no error and nothing to register beforehand. Omitting the
-flag entirely uses `default`, which is created the same way. Come back to the
-same name and you get the same directory, so the login, the verification you
-already passed, and the `device_id` all persist — that persistence is the whole
-point, and it is why a typo in a name is worth avoiding: it silently starts a
-new identity rather than resuming the one you meant.
+rather than quietly rewritten, since a silently different directory would mean
+a silently different `device_id`.
 
 ### Listing and deleting profiles
 
@@ -250,7 +248,8 @@ part of the fit.
 ├── native_bot/             Built-in libriichi-free bot (candle CNN inference)
 ├── frontend/               React + Vite + Tailwind UI
 │   └── src/
-│       ├── routes/         Overview, Game, Bots, History, Review, Logs, Settings, Setup, Overlay
+│       ├── routes/         Overview, GameDashboard, Bots, History, Review, Logs,
+│       │                 Settings, Setup, Overlay, and the two debug views
 │       ├── components/     UI components (shadcn/ui in components/ui)
 │       ├── tiles/          Dashboard tiles (hand, risk chart, recommendation)
 │       ├── stores/         Zustand state
@@ -265,7 +264,7 @@ part of the fit.
 ├── profiles/               Autoplay timing profiles + shared autoplay.toml
 ├── runtime/                Bundled python + uv binaries
 ├── scripts/
-│   ├── akagi               setup / run / clean / dedupe / doctor
+│   ├── akagi               setup / run / profiles / clean / dedupe / doctor
 │   ├── apply-profile.sh    Writes a profile into configs/
 │   └── fetch-runtime.sh    Downloads python-build-standalone + uv
 ├── build.rs                protobuf codegen + target triple
@@ -296,13 +295,13 @@ history, and browser login with it. Here that state lives in `configs/` and
 `target/` can be deleted at any time.
 
 **One script.** `scripts/akagi` replaces the ad-hoc dev scripts with
-`setup`/`run`/`clean`/`dedupe`/`doctor`. `clean` is explicit about only
+`setup`/`run`/`profiles`/`clean`/`dedupe`/`doctor`. `clean` is explicit about only
 removing regenerable bytes; `dedupe` hardlinks the identical dependency trees
 that separate bot venvs would otherwise each pay for (~400 MB for two Mortal
 bots).
 
 **Stripped for size.** No CI workflows, release packaging, signing, binary
-test fixtures, or training scripts. The unit tests are intact — 792 on the
+test fixtures, or training scripts. The unit tests are intact — 843 on the
 Rust side, 94 in the frontend. Non-macOS-arm64 `libriichi` binaries and
 non-Japanese READMEs are gone. `native_bot` lost its `extract` binary and
 replay module. Cargo is now a workspace, so there's a single lockfile.

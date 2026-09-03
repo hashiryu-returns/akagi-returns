@@ -404,6 +404,7 @@
     "user_data_dir": "User data dir",
     "user_data_dir_hint": "Leave blank to use the default Akagi profile under your config dir.",
     "browser_profile": "Browser profile",
+    "browser_profile_overridden": "In use for this run: \"{{name}}\", from --profile at launch. Restart without the flag to use the configured profile.",
     "browser_profile_hint": "Names a separate browser profile directory, each with its own device_id and logins. Blank uses the shared default. Letters, digits, - and _ only.",
     "force_cft": "Use Chrome for Testing",
     "cft_title": "Chrome for Testing",
@@ -866,16 +867,12 @@
     },
     "entries": {
       "v3_7_0": {
-        "title": "Riichi City autoplay & whole-game review (Beta)",
-        "rc_autoplay_title": "Riichi City autoplay",
-        "rc_autoplay_desc": "Let Akagi play your turns on Riichi City automatically — discards, calls and riichi, all hands-free. Works in both four-player and three-player games.",
+        "title": "Whole-game review (Beta)",
         "review_title": "Whole-game review (Beta)",
         "review_desc": "Submit any recorded game for a full AI review and see where your play matched — or missed — the AI's choice in the MJOT viewer, with a shareable result link."
       },
       "v3_6_0": {
-        "title": "Tenhou autoplay & selectable update sources",
-        "tenhou_autoplay_title": "Tenhou autoplay",
-        "tenhou_autoplay_desc": "Let Akagi play your turns on Tenhou automatically — discards, calls and riichi, all hands-free.",
+        "title": "Selectable update sources",
         "update_source_title": "Choose your update source",
         "update_source_desc": "The auto-updater now lets you pick where downloads come from, with a mirror option for faster, more reliable updates where GitHub is slow."
       },

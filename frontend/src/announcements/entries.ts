@@ -48,19 +48,17 @@ export const ANNOUNCEMENTS: AnnouncementEntry[] = [
     id: 'v3_7_0',
     date: '2026-08-25',
     version: '3.7.0',
-    features: [
-      { icon: Bot, key: 'rc_autoplay' },
-      { icon: SearchCheck, key: 'review' },
-    ],
+    // Upstream's Riichi City autoplay highlight is dropped here, as is
+    // Tenhou's below: this fork supports Mahjong Soul only, and an
+    // announcement for a platform the build cannot reach is just a false
+    // claim in the UI.
+    features: [{ icon: SearchCheck, key: 'review' }],
   },
   {
     id: 'v3_6_0',
     date: '2026-08-14',
     version: '3.6.0',
-    features: [
-      { icon: Bot, key: 'tenhou_autoplay' },
-      { icon: Download, key: 'update_source' },
-    ],
+    features: [{ icon: Download, key: 'update_source' }],
   },
   {
     id: 'v3_5_0',

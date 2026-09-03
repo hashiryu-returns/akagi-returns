@@ -15,7 +15,13 @@ function makeConfig(over: {
     },
     logging: { dir: '', level: 'info', all_level: 'warn' },
     platform: { kind: over.platform ?? 'Majsoul' },
-    proxy: { enabled: true, addr: '127.0.0.1:23410', ca_dir: '', block_telemetry: true },
+    proxy: {
+      enabled: true,
+      addr: '127.0.0.1:23410',
+      ca_dir: '',
+      rewrite_certificate_report: true,
+      block_telemetry: true,
+    },
     bot: {
       enabled: true,
       active_4p: 'akagi-native',
@@ -39,11 +45,12 @@ function makeConfig(over: {
         executable: '',
         user_data_dir: '',
         profile: '',
-        start_url: 'https://game.maj-soul.com/1/',
+        start_url: 'https://game.mahjongsoul.com/',
         cft_channel: 'stable',
         force_cft: false,
         extra_args: [],
       },
+      http: { record_all: false, bodies: true, max_body_bytes: 256 * 1024, static_assets: false },
     },
     autoplay: {
       enabled: false,

@@ -404,6 +404,7 @@
     "user_data_dir": "使用者資料目錄",
     "user_data_dir_hint": "留空則使用 config 目錄下預設的 Akagi profile。",
     "browser_profile": "瀏覽器設定檔",
+    "browser_profile_overridden": "本次執行使用啟動參數 --profile 指定的「{{name}}」。如需使用設定中的設定檔，請不帶該參數重新啟動。",
     "browser_profile_hint": "指定獨立的瀏覽器設定檔目錄，各自擁有不同的 device_id 與登入狀態。留空則使用共用的預設設定。僅支援字母、數字、- 與 _。",
     "force_cft": "使用 Chrome for Testing",
     "cft_title": "Chrome for Testing",
@@ -866,16 +867,12 @@
     },
     "entries": {
       "v3_7_0": {
-        "title": "麻雀一番街自動打牌,對局覆盤(Beta)",
-        "rc_autoplay_title": "麻雀一番街自動打牌",
-        "rc_autoplay_desc": "讓 Akagi 在麻雀一番街自動幫你出牌、鳴牌與立直,全程免動手,四麻與三麻皆支援。",
+        "title": "對局覆盤(Beta)",
         "review_title": "對局覆盤(Beta)",
         "review_desc": "將歷史紀錄中的對局送交 AI 進行整場覆盤,在 MJOT 檢視器中查看每一手與 AI 選擇的一致程度,並可產生連結分享結果。"
       },
       "v3_6_0": {
-        "title": "天鳳自動打牌,更新來源可選擇",
-        "tenhou_autoplay_title": "天鳳自動打牌",
-        "tenhou_autoplay_desc": "讓 Akagi 在天鳳自動幫你出牌、鳴牌與立直,全程免動手。",
+        "title": "更新來源可選擇",
         "update_source_title": "更新來源可選擇",
         "update_source_desc": "自動更新現在可以選擇下載來源,並提供鏡像選項,在 GitHub 較慢的地區也能更快、更穩定地更新。"
       },

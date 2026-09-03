@@ -73,6 +73,17 @@ pub async fn get_config(state: State<'_, AppState>) -> CmdResult<AppConfig> {
     Ok(state.config.read().await.clone())
 }
 
+/// The browser profile `--profile` selected, if it was passed.
+///
+/// Deliberately not merged into `get_config`: that value is what gets written
+/// back on save, and the override must not be. The Settings card reads this
+/// separately so it can say which profile is actually in use, rather than
+/// showing a configured name the running browser is ignoring.
+#[tauri::command]
+pub async fn get_profile_override(state: State<'_, AppState>) -> CmdResult<Option<String>> {
+    Ok(state.profile_override.clone())
+}
+
 /// Replace the entire config and persist it to the same file the app
 /// loaded from. Capture-related changes (mode, chromium settings, proxy
 /// settings) trigger an automatic supervisor restart so the user doesn't
@@ -1311,7 +1322,7 @@ pub async fn get_game_history_events(
         .map_err(|e| format!("{e:#}"))
 }
 
-/// Delete a recorded game (its index entry + games/<id>.mjai.jsonl).
+/// Delete a recorded game (its index entry + `games/<id>.mjai.jsonl`).
 /// Returns true if a record was actually removed. Emits a
 /// `HistoryEvent::Deleted` on the history bus so the frontend can drop
 /// the row from its cache without a refetch.
@@ -1741,6 +1752,7 @@ macro_rules! ipc_handlers {
     () => {
         ::tauri::generate_handler![
             $crate::ipc::commands::get_config,
+            $crate::ipc::commands::get_profile_override,
             $crate::ipc::commands::update_config,
             $crate::ipc::commands::set_overlay_enabled,
             $crate::ipc::commands::list_bots,

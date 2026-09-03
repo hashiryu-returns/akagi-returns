@@ -43,6 +43,8 @@ user_data_dir = ""
 # Names a separate browser profile directory. Each one carries its own
 # device_id and its own logins, so accounts under different names are not
 # linked by the identifier the client reports at login. Blank = shared default.
+# `scripts/akagi run --profile NAME` overrides this for a single run without
+# editing the file; `scripts/akagi profiles` lists what exists.
 profile = ""
 start_url = "https://mahjongsoul.game.yo-star.com/"
 cft_channel = "stable"

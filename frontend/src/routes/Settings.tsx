@@ -1023,6 +1023,16 @@ function CaptureCard({
   }
   const [detected, setDetected] = useState<DetectedBrowser[] | null>(null)
   const [detecting, setDetecting] = useState(false)
+  // Set when Akagi was launched with `--profile`. That wins over the
+  // configured name for the whole run, so the field below would otherwise
+  // show a profile the browser is not using.
+  const [profileOverride, setProfileOverride] = useState<string | null>(null)
+
+  useEffect(() => {
+    invoke<string | null>('get_profile_override')
+      .then(setProfileOverride)
+      .catch(() => setProfileOverride(null))
+  }, [])
 
   const probe = async () => {
     setDetecting(true)
@@ -1044,21 +1054,20 @@ function CaptureCard({
     }
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Spread `draft.capture` rather than rebuilding it: `capture.http` has no
+  // card here, and listing only the fields this card owns drops it from the
+  // payload. `CaptureConfig` is `#[serde(default)]`, so the backend would fill
+  // the gap with defaults and persist them — silently resetting HTTP capture
+  // on any unrelated edit.
   const setMode = (v: CaptureMode) =>
     setDraft({
       ...draft,
-      capture: {
-        mode: v,
-        chromium,
-      },
+      capture: { ...draft.capture, mode: v, chromium },
     })
   const setChromium = (patch: Partial<typeof chromium>) =>
     setDraft({
       ...draft,
-      capture: {
-        mode,
-        chromium: { ...chromium, ...patch },
-      },
+      capture: { ...draft.capture, mode, chromium: { ...chromium, ...patch } },
     })
 
   return (
@@ -1147,12 +1156,17 @@ function CaptureCard({
             </Field>
             <Field
               label={t('settings.browser_profile')}
-              hint={t('settings.browser_profile_hint')}
+              hint={
+                profileOverride === null
+                  ? t('settings.browser_profile_hint')
+                  : t('settings.browser_profile_overridden', { name: profileOverride })
+              }
             >
               <Input
-                value={chromium.profile}
+                value={profileOverride ?? chromium.profile}
                 onChange={(e) => setChromium({ profile: e.target.value })}
                 placeholder={t('common.default')}
+                disabled={profileOverride !== null}
               />
             </Field>
             <Field label={t('settings.server')} hint={t('settings.server_hint')}>

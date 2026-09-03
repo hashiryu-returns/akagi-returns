@@ -82,9 +82,20 @@ export type ChromiumConfig = {
   extra_args: string[]
 }
 
+/** Mirrors Rust's `HttpCaptureConfig`. No card in Settings edits these, but
+ *  they must survive a round-trip: the Rust side is `#[serde(default)]`, so a
+ *  field the frontend drops comes back as a default and gets persisted. */
+export type HttpCaptureConfig = {
+  record_all: boolean
+  bodies: boolean
+  max_body_bytes: number
+  static_assets: boolean
+}
+
 export type CaptureConfig = {
   mode: CaptureMode
   chromium: ChromiumConfig
+  http: HttpCaptureConfig
 }
 
 export type DetectedBrowser = {
@@ -199,7 +210,15 @@ export type AppConfig = {
   general: { first_run_completed: boolean; developer_mode: boolean }
   logging: { dir: string; level: string; all_level: string }
   platform: { kind: PlatformKind }
-  proxy: { enabled: boolean; addr: string; ca_dir: string; block_telemetry: boolean }
+  proxy: {
+    enabled: boolean
+    addr: string
+    ca_dir: string
+    /** MITM-only, and edited by hand rather than in Settings — declared so it
+     *  round-trips instead of reverting to the Rust default on save. */
+    rewrite_certificate_report: boolean
+    block_telemetry: boolean
+  }
   bot: {
     enabled: boolean
     active_4p: string
