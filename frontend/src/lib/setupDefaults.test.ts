@@ -38,6 +38,7 @@ function makeConfig(over: {
       chromium: {
         executable: '',
         user_data_dir: '',
+        profile: '',
         start_url: 'https://game.maj-soul.com/1/',
         cft_channel: 'stable',
         force_cft: false,

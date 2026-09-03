@@ -31,15 +31,14 @@ This is a personal fork of [shinkuan/Akagi](https://github.com/shinkuan/Akagi)
 # One time: fetch the bundled python runtime and build the frontend.
 scripts/akagi setup
 
-# Keep the Mac awake for the whole session, then run.
-caffeinate -dism &
-scripts/akagi run
+# Keep the Mac awake for as long as Akagi runs.
+caffeinate -dism scripts/akagi run
 ```
 
-`caffeinate -dism` prevents display sleep, idle sleep, and system sleep. Run it
-**before** `scripts/akagi run` — a Mac that sleeps mid-hand drops the WebSocket
-and the bot loses the game state. Press `Ctrl-C` on the caffeinate job (or
-`kill %1`) when you're done.
+`caffeinate -dism` prevents display sleep, idle sleep, and system sleep; a Mac
+that sleeps mid-hand drops the WebSocket and the bot loses the game state.
+Giving it the command to run rather than backgrounding it means the caffeinate
+exits when Akagi does, so there is no stray job to remember to kill.
 
 ## Commands
 
@@ -85,10 +84,39 @@ cargo build means `target/debug/`. Anything that must survive a rebuild
 therefore lives at the repo root and is symlinked into place by `run`:
 
 - `configs/` — `config.toml` and `delay.lua`. Tracked in git; back these up.
-- `data/` — CA cert, logs, game history, and the Chromium profile (your login
-  session). Git-ignored, local to this machine.
+- `data/` — CA cert, logs, game history, and `profiles/` (your browser sessions).
+  Git-ignored, local to this machine.
 
 That split is what makes `target/` fully disposable.
+
+### Browser profiles
+
+`capture.chromium.profile` names a separate browser profile. Directories live
+under `data/profiles/`, one per name, with `default/` used when the setting is
+blank.
+
+The reason to use it is `device_id`: a UUID Mahjong Soul mints on first visit,
+keeps in local storage, and sends with every login. It lives in the profile
+directory, so every account played through one profile reports the same value
+and is trivially grouped. Separate profiles report separate values.
+
+Local storage is scoped per origin, so the JP and EN servers already mint
+different IDs inside one profile. This setting is for keeping *several accounts
+on the same server* apart.
+
+Two things worth knowing before using it. A new profile starts logged out, and
+Mahjong Soul will email a verification code on the first login. And separation
+is not free elsewhere — a shared egress IP still links the accounts, so this
+removes one join key rather than all of them.
+
+```toml
+[capture.chromium]
+profile = "west"      # → data/profiles/west
+```
+
+Names accept letters, digits, `-` and `_`. Anything else is rejected at launch
+rather than quietly rewritten, since a silently different directory would mean a
+silently different `device_id`.
 
 ## Timing profiles
 
@@ -198,7 +226,7 @@ part of the fit.
 │   └── icons/              App icons
 ├── capabilities/           Tauri permission manifests
 ├── configs/                Your config.toml + delay.lua  (tracked)
-├── data/                   Runtime state: CA, logs, history, browser profile
+├── data/                   Runtime state: CA, logs, history, profiles/
 ├── mjai_bot/               Installed bots + their uv venvs  (managed by Akagi)
 ├── profiles/               Autoplay timing profiles + shared autoplay.toml
 ├── runtime/                Bundled python + uv binaries

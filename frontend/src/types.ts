@@ -75,6 +75,7 @@ export type CaptureMode = 'mitm' | 'chromium'
 export type ChromiumConfig = {
   executable: string
   user_data_dir: string
+  profile: string
   start_url: string
   cft_channel: string
   force_cft: boolean

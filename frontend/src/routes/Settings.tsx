@@ -1015,6 +1015,7 @@ function CaptureCard({
   const chromium = draft.capture?.chromium ?? {
     executable: '',
     user_data_dir: '',
+    profile: '',
     start_url: platformInfo(draft.platform.kind).defaultStartUrl,
     cft_channel: 'stable',
     force_cft: false,
@@ -1141,6 +1142,16 @@ function CaptureCard({
               <Input
                 value={chromium.user_data_dir}
                 onChange={(e) => setChromium({ user_data_dir: e.target.value })}
+                placeholder={t('common.default')}
+              />
+            </Field>
+            <Field
+              label={t('settings.browser_profile')}
+              hint={t('settings.browser_profile_hint')}
+            >
+              <Input
+                value={chromium.profile}
+                onChange={(e) => setChromium({ profile: e.target.value })}
                 placeholder={t('common.default')}
               />
             </Field>

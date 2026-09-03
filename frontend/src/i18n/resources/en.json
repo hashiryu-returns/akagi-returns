@@ -403,6 +403,8 @@
     "detect_status_detected": "Detected: {{paths}}",
     "user_data_dir": "User data dir",
     "user_data_dir_hint": "Leave blank to use the default Akagi profile under your config dir.",
+    "browser_profile": "Browser profile",
+    "browser_profile_hint": "Names a separate browser profile directory, each with its own device_id and logins. Blank uses the shared default. Letters, digits, - and _ only.",
     "force_cft": "Use Chrome for Testing",
     "cft_title": "Chrome for Testing",
     "cft_status_loading": "Loading…",

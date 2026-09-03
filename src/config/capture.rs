@@ -86,6 +86,17 @@ pub struct ChromiumConfig {
     /// `chrome-profile/` (resolved via `util::resolve_dir`, with an
     /// AppImage / read-only fallback to `<user_config_root>/chrome-profile`).
     pub user_data_dir: String,
+    /// Optional name selecting a separate browser profile, suffixed onto
+    /// whichever directory `user_data_dir` resolves to. `""` = the shared
+    /// default.
+    ///
+    /// Each directory keeps its own local storage, and Mahjong Soul's
+    /// `device_id` lives there, so switching this switches the identifier the
+    /// client reports at login. Accounts played under one name stay linked to
+    /// each other; accounts under different names do not.
+    ///
+    /// Cookies are per-directory too, so a new name starts logged out.
+    pub profile: String,
     /// URL to navigate to on launch. `""` = don't auto-navigate (open new tab page).
     pub start_url: String,
     /// Chrome-for-Testing channel/version to download as fallback.
@@ -103,6 +114,7 @@ impl Default for ChromiumConfig {
         Self {
             executable: String::new(),
             user_data_dir: String::new(),
+            profile: String::new(),
             start_url: "https://game.maj-soul.com/1/".to_string(),
             cft_channel: "stable".to_string(),
             force_cft: false,
@@ -159,6 +171,7 @@ mod tests {
             chromium: ChromiumConfig {
                 executable: "/opt/chrome/chrome".into(),
                 user_data_dir: "/tmp/profile".into(),
+                profile: "jp".into(),
                 start_url: "https://example.test/".into(),
                 cft_channel: "131.0.6778.85".into(),
                 force_cft: true,
@@ -170,6 +183,7 @@ mod tests {
         let back: CaptureConfig = toml::from_str(&s).unwrap();
         assert_eq!(back.mode, CaptureMode::Chromium);
         assert_eq!(back.chromium.executable, "/opt/chrome/chrome");
+        assert_eq!(back.chromium.profile, "jp");
         assert!(back.chromium.force_cft);
         assert_eq!(back.chromium.extra_args, vec!["--lang=ja"]);
     }

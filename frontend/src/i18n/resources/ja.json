@@ -403,6 +403,8 @@
     "detect_status_detected": "検出: {{paths}}",
     "user_data_dir": "ユーザーデータディレクトリ",
     "user_data_dir_hint": "空欄にすると config 配下の Akagi デフォルト profile を使用します。",
+    "browser_profile": "ブラウザプロファイル",
+    "browser_profile_hint": "別のブラウザプロファイルを指定します。プロファイルごとに device_id とログイン状態が分かれます。空欄で共通のものを使用。使える文字は英数字と - _ のみ。",
     "force_cft": "Chrome for Testing を使用",
     "cft_title": "Chrome for Testing",
     "cft_status_loading": "読み込み中…",

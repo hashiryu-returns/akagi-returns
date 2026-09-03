@@ -77,7 +77,7 @@ impl CaptureBackend for ChromiumBackend {
         let exe = self
             .resolve_executable()
             .context("resolving chromium executable")?;
-        let profile_dir = profile::resolve_profile_dir(&self.cfg.user_data_dir)?;
+        let profile_dir = profile::resolve_profile_dir(&self.cfg.user_data_dir, &self.cfg.profile)?;
         std::fs::create_dir_all(&profile_dir)
             .with_context(|| format!("creating chromium profile dir {}", profile_dir.display()))?;
         // A browser we previously launched may still be running with this

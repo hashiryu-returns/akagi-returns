@@ -29,17 +29,53 @@ link() {
   ln -sfn "$src" "$dst"
 }
 
+# The profile named by capture.chromium.profile, if any. Akagi appends it to
+# the profile dir, so the symlink has to exist under that exact name or the
+# browser session would be created inside the disposable target/ tree.
+configured_profile() {
+  [[ -f "${ROOT}/configs/config.toml" ]] || return 0
+  awk '
+    /^\[/          { in_chromium = ($0 == "[capture.chromium]") }
+    in_chromium && /^[[:space:]]*profile[[:space:]]*=/ {
+      if (match($0, /"[^"]*"/)) {
+        print substr($0, RSTART + 1, RLENGTH - 2)
+        exit
+      }
+    }
+  ' "${ROOT}/configs/config.toml"
+}
+
 wire_dirs() {
   mkdir -p "${EXE_DIR}" "${ROOT}/configs" \
            "${ROOT}/data/ca" "${ROOT}/data/logs" \
-           "${ROOT}/data/history" "${ROOT}/data/chrome-profile"
-  link "${ROOT}/configs"             "${EXE_DIR}/configs"
-  link "${ROOT}/runtime"             "${EXE_DIR}/runtime"
-  link "${ROOT}/mjai_bot"            "${EXE_DIR}/mjai_bot"
-  link "${ROOT}/data/ca"             "${EXE_DIR}/ca"
-  link "${ROOT}/data/logs"           "${EXE_DIR}/logs"
-  link "${ROOT}/data/history"        "${EXE_DIR}/history"
-  link "${ROOT}/data/chrome-profile" "${EXE_DIR}/chrome-profile"
+           "${ROOT}/data/history" "${ROOT}/data/profiles/default"
+  link "${ROOT}/configs"      "${EXE_DIR}/configs"
+  link "${ROOT}/runtime"      "${EXE_DIR}/runtime"
+  link "${ROOT}/mjai_bot"     "${EXE_DIR}/mjai_bot"
+  link "${ROOT}/data/ca"      "${EXE_DIR}/ca"
+  link "${ROOT}/data/logs"    "${EXE_DIR}/logs"
+  link "${ROOT}/data/history" "${EXE_DIR}/history"
+  wire_profiles
+}
+
+# Akagi looks for the browser profile exe-adjacent as `chrome-profile`, and as
+# `chrome-profile-<name>` when capture.chromium.profile is set. Those names are
+# fixed by the resolver, so they stay as links here while the directories
+# themselves live together under data/profiles/ and survive `clean`.
+#
+# Every profile is linked, not just the configured one, so switching between
+# them is a config edit and a restart.
+wire_profiles() {
+  local named d name
+  named="$(configured_profile)"
+  [[ -n "$named" ]] && mkdir -p "${ROOT}/data/profiles/${named}"
+  link "${ROOT}/data/profiles/default" "${EXE_DIR}/chrome-profile"
+  for d in "${ROOT}"/data/profiles/*; do
+    [[ -d "$d" ]] || continue
+    name="$(basename "$d")"
+    [[ "$name" == "default" ]] && continue
+    link "$d" "${EXE_DIR}/chrome-profile-${name}"
+  done
 }
 
 ensure_runtime() {
@@ -150,7 +186,7 @@ cmd_run() {
 }
 
 # Only ever removes regenerable bytes. configs/, data/ca, data/history and
-# data/chrome-profile (the Mahjong Soul session) are never touched.
+# data/profiles (the Mahjong Soul sessions) are never touched.
 cmd_clean() {
   local before after
   before=$(du -sk "${ROOT}" | awk '{print $1}')
@@ -164,12 +200,15 @@ cmd_clean() {
   echo "==> logs"
   rm -rf "${ROOT}/data/logs"/*
   echo "==> chromium caches (session and site data kept)"
-  local p="${ROOT}/data/chrome-profile"
-  rm -rf "${p}/Default/Cache" "${p}/Default/Code Cache" "${p}/Default/GPUCache" \
-         "${p}/Default/DawnGraphiteCache" "${p}/Default/DawnWebGPUCache" \
-         "${p}/Default/Service Worker" "${p}/GraphiteDawnCache" \
-         "${p}/GPUPersistentCache" "${p}/optimization_guide_model_store" \
-         "${p}/Snapshots" "${p}"/BrowserMetrics*.pma
+  local p
+  for p in "${ROOT}"/data/profiles/*; do
+    [[ -d "$p" ]] || continue
+    rm -rf "${p}/Default/Cache" "${p}/Default/Code Cache" "${p}/Default/GPUCache" \
+           "${p}/Default/DawnGraphiteCache" "${p}/Default/DawnWebGPUCache" \
+           "${p}/Default/Service Worker" "${p}/GraphiteDawnCache" \
+           "${p}/GPUPersistentCache" "${p}/optimization_guide_model_store" \
+           "${p}/Snapshots" "${p}"/BrowserMetrics*.pma
+  done
   echo "==> python bytecode"
   find "${ROOT}/runtime" "${ROOT}/mjai_bot" -type d -name '__pycache__' \
     -exec rm -rf {} + 2>/dev/null || true

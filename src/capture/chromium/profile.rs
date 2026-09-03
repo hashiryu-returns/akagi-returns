@@ -46,17 +46,61 @@ const KILL_POLL: Duration = Duration::from_millis(100);
 /// (config, logs, profile) in one folder. Otherwise `configured` is
 /// treated as an absolute path (relative paths are not supported here
 /// — there's no meaningful root for them).
-pub fn resolve_profile_dir(configured: &str) -> Result<PathBuf> {
-    if !configured.is_empty() {
+///
+/// A non-empty `profile` is appended to the final path component, so
+/// `chrome-profile` becomes `chrome-profile-<name>`. Separate directories
+/// rather than Chrome's own `--profile-directory`, because local storage —
+/// and therefore Mahjong Soul's `device_id` — is only guaranteed distinct
+/// across user-data-dirs.
+pub fn resolve_profile_dir(configured: &str, profile: &str) -> Result<PathBuf> {
+    let base = if configured.is_empty() {
+        crate::util::resolve_dir(Path::new("./chrome-profile"))
+    } else {
         let p = PathBuf::from(configured);
         if !p.is_absolute() {
             return Err(anyhow!(
                 "capture.chromium.user_data_dir must be absolute (got {configured:?})"
             ));
         }
-        return Ok(p);
+        p
+    };
+    match validate_profile_name(profile)? {
+        None => Ok(base),
+        Some(name) => {
+            let stem = base
+                .file_name()
+                .and_then(|s| s.to_str())
+                .ok_or_else(|| anyhow!("cannot derive a profile directory from {base:?}"))?;
+            Ok(base.with_file_name(format!("{stem}-{name}")))
+        }
     }
-    Ok(crate::util::resolve_dir(Path::new("./chrome-profile")))
+}
+
+/// Accept only what is safe as part of a directory name. Rejecting rather
+/// than sanitising: a name silently rewritten into a different directory
+/// would hand the account a different `device_id` than the operator expected,
+/// which is exactly the failure this setting exists to avoid.
+fn validate_profile_name(profile: &str) -> Result<Option<&str>> {
+    let name = profile.trim();
+    if name.is_empty() {
+        return Ok(None);
+    }
+    if name.len() > 64 {
+        return Err(anyhow!(
+            "capture.chromium.profile must be 64 characters or fewer (got {})",
+            name.len()
+        ));
+    }
+    if !name
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_'))
+    {
+        return Err(anyhow!(
+            "capture.chromium.profile may only contain letters, digits, '-' and '_' \
+             (got {profile:?})"
+        ));
+    }
+    Ok(Some(name))
 }
 
 /// Make the profile dir launchable by clearing any `SingletonLock` /
@@ -466,7 +510,7 @@ mod tests {
 
     #[test]
     fn resolve_default_lands_at_chrome_profile() {
-        let p = resolve_profile_dir("").unwrap();
+        let p = resolve_profile_dir("", "").unwrap();
         // ends with chrome-profile regardless of which arm of resolve_dir
         // fired (exe-adjacent on portable, user_root on AppImage).
         assert!(
@@ -483,14 +527,77 @@ mod tests {
         } else {
             "/tmp/custom"
         };
-        let p = resolve_profile_dir(abs).unwrap();
+        let p = resolve_profile_dir(abs, "").unwrap();
         assert_eq!(p, PathBuf::from(abs));
     }
 
     #[test]
     fn resolve_relative_rejected() {
-        let r = resolve_profile_dir("./relative");
+        let r = resolve_profile_dir("./relative", "");
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn a_named_profile_gets_its_own_directory() {
+        let p = resolve_profile_dir("", "jp").unwrap();
+        assert!(
+            p.ends_with("chrome-profile-jp"),
+            "expected ending in chrome-profile-jp: {}",
+            p.display()
+        );
+        // Sibling of the shared one, not nested inside it: Chrome treats a
+        // user-data-dir as its own root and nesting confuses the lock files.
+        let shared = resolve_profile_dir("", "").unwrap();
+        assert_eq!(p.parent(), shared.parent());
+        assert_ne!(p, shared);
+    }
+
+    #[test]
+    fn named_profiles_differ_from_each_other() {
+        let jp = resolve_profile_dir("", "jp").unwrap();
+        let en = resolve_profile_dir("", "en").unwrap();
+        assert_ne!(jp, en);
+    }
+
+    #[test]
+    fn a_name_suffixes_an_explicit_user_data_dir_too() {
+        let abs = if cfg!(windows) {
+            r"C:\tmp\custom"
+        } else {
+            "/tmp/custom"
+        };
+        let p = resolve_profile_dir(abs, "en").unwrap();
+        assert_eq!(p.file_name().unwrap(), "custom-en");
+        assert_eq!(p.parent(), PathBuf::from(abs).parent());
+    }
+
+    #[test]
+    fn surrounding_whitespace_in_a_name_is_ignored() {
+        assert_eq!(
+            resolve_profile_dir("", "  jp  ").unwrap(),
+            resolve_profile_dir("", "jp").unwrap()
+        );
+        // Whitespace only is the same as unset, not a directory named "-".
+        assert_eq!(
+            resolve_profile_dir("", "   ").unwrap(),
+            resolve_profile_dir("", "").unwrap()
+        );
+    }
+
+    #[test]
+    fn a_name_cannot_escape_the_parent_directory() {
+        for bad in ["..", "../evil", "a/b", r"a\b", "a b", "jp;rm", ".hidden"] {
+            assert!(
+                resolve_profile_dir("", bad).is_err(),
+                "expected {bad:?} to be rejected"
+            );
+        }
+    }
+
+    #[test]
+    fn an_overlong_name_is_rejected() {
+        assert!(resolve_profile_dir("", &"a".repeat(65)).is_err());
+        assert!(resolve_profile_dir("", &"a".repeat(64)).is_ok());
     }
 
     #[test]
