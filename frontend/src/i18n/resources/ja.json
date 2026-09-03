@@ -498,8 +498,7 @@
     "welcome": {
       "title": "Akagi へようこそ",
       "body1": "Akagi は麻雀ゲームのトラフィックを監視し、mjai プロトコル Bot と連携してリアルタイムにアドバイスを提供します。Bot が動き出す前に、Akagi はゲームの WebSocket を取得する手段を必要とします。",
-      "body2": "次のページでは「従来型 MITM プロキシ（強力ですが CA 証明書の信頼が必要）」と「制御下の Chromium ブラウザ（プロキシ／証明書の設定不要 — Akagi が自前のブラウザを起動）」のどちらかを選択します。",
-      "links_label": "プロジェクトホームと公式コミュニティ："
+      "body2": "次のページでは「従来型 MITM プロキシ（強力ですが CA 証明書の信頼が必要）」と「制御下の Chromium ブラウザ（プロキシ／証明書の設定不要 — Akagi が自前のブラウザを起動）」のどちらかを選択します。"
     },
     "mode": {
       "title": "キャプチャモードを選択",
@@ -538,10 +537,7 @@
       "normal_desc": "これらのつまみで Bot の挙動を調整できます。あとから「Bots → 設定」で変更できます。",
       "no_settings": "この Bot に調整可能な設定はありません。",
       "loading_bot": "{{name}} を読み込み中…",
-      "loading": "Bot 設定を読み込み中…",
-      "models_title": "より強いモデルは Discord で配布",
-      "models_body": "この同梱の Mortal 重みはインストールが正しく動くことの確認用で、実戦には推奨しません。より強い重みは Discord サーバーで入手できます。",
-      "models_btn": "Discord を開く"
+      "loading": "Bot 設定を読み込み中…"
     },
     "finish": {
       "title": "セットアップ完了",
@@ -812,90 +808,21 @@
     "riichi_city": "麻雀一番街",
     "mjai": "mjai"
   },
-  "updates": {
-    "toast": {
-      "title": "Akagi {{version}} が利用可能です",
-      "action": "詳細を見る"
-    },
-    "dialog": {
-      "title": "更新あり: Akagi {{version}}",
-      "notes_heading": "リリースノート",
-      "no_notes": "リリースノートはありません。",
-      "update_now": "今すぐ更新",
-      "skip": "このバージョンをスキップ",
-      "later": "後で",
-      "open_release": "リリースページを開く",
-      "applying": "ダウンロードして適用中…",
-      "runtime_caveat": "自動更新は実行ファイルのみを置き換えます。このリリースで同梱の Python ランタイムも更新されている場合、更新後にアプリが正常に動作しないことがあります。その場合はリリースページから手動で再インストールしてください。",
-      "error_read_only": "Akagi のインストールディレクトリに書き込めません。リリースページから手動で更新してください。",
-      "error_unsupported_platform": "お使いのプラットフォームは自動更新に対応していません。リリースページからダウンロードしてください。",
-      "error_no_matching_asset": "このリリースにはお使いのプラットフォーム用のビルドがまだありません。",
-      "error_digest_mismatch": "ダウンロードしたファイルのチェックサムがリリース情報と一致しません。再試行するか手動でダウンロードしてください。",
-      "error_signature_missing": "このリリースには署名がなく、ダウンロードがミラー経由になります。リリースページから手動で更新してください。",
-      "error_signature_invalid": "ダウンロードしたファイルの署名検証に失敗したため、インストールを中止しました。再試行するか手動でダウンロードしてください。",
-      "error_generic": "更新に失敗しました: {{message}}"
-    },
-    "settings": {
-      "title": "更新",
-      "current": "現在のバージョン",
-      "check_now": "更新を確認",
-      "checking": "確認中…",
-      "up_to_date": "最新バージョンです。",
-      "last_checked": "最終確認: {{when}}",
-      "never_checked": "未確認",
-      "auto_check": "起動時に自動で更新を確認",
-      "available": "更新あり: {{version}}",
-      "skipped_label": "スキップ済みバージョン",
-      "clear_skipped": "スキップを解除",
-      "none_skipped": "なし"
-    }
-  },
   "announcements": {
-    "akagims": {
-      "card_title": "AkagiMS — 雀魂専用のスタンドアロン版",
-      "card_desc": "ゲームクライアント内蔵、全自動プレイ、セットアップ不要。ダウンロードして解凍、実行するだけ。",
-      "card_dismiss": "閉じる",
-      "screenshot_alt": "AkagiMS が全自動モードで段位戦をプレイ中",
-      "view_download": "ダウンロード"
-    },
     "dialog": {
       "title": "お知らせ",
       "intro": "リリースのハイライトとプロジェクトからのお知らせです。",
-      "got_it": "OK",
-      "all_releases": "リリースノート一覧",
-      "settings_button": "お知らせ"
+      "got_it": "OK"
     },
     "entries": {
-      "v3_7_0": {
-        "title": "対局検討（ベータ）",
-        "review_title": "対局検討（ベータ）",
-        "review_desc": "記録した対局を AI に丸ごと検討させ、AI の選択と一致した打牌・逸れた打牌を MJOT ビューアで確認できます。結果はリンクで共有できます。"
-      },
-      "v3_6_0": {
-        "title": "アップデート取得元の選択",
-        "update_source_title": "アップデート取得元の選択",
-        "update_source_desc": "自動アップデートのダウンロード元を選べるようになりました。GitHub が遅い地域向けのミラーも利用でき、より速く安定して更新できます。"
-      },
-      "v3_5_0": {
-        "title": "アプリ内購入:Alipay・Apple Pay・Google Pay 対応",
-        "image_alt": "MJOT クラウド AI のロゴ",
-        "checkout_title": "アプリ内購入",
-        "checkout_desc": "アプリ内で MJOT の利用時間を購入・延長できます。カード / Google Pay / Apple Pay / Alipay に対応します。",
-        "health_title": "更新とヘルスチェックの改善",
-        "health_desc": "延長は既定で現在のキーに加算され、ヘルスチェックはキュー状況や性能低下を報告するようになりました。"
-      },
-      "akagims": {
-        "title": "AkagiMS 登場:雀魂専用のスタンドアロンアプリ",
-        "majsoul_title": "雀魂専用設計",
-        "majsoul_desc": "ひとつのゲームのために作られ、すべてがそのために調整されています。",
-        "embedded_title": "ゲームクライアント内蔵",
-        "embedded_desc": "雀魂がアプリのウィンドウ内で開きます — プロキシも証明書も別のブラウザも不要。",
-        "fullauto_title": "全自動プレイ",
-        "fullauto_desc": "段位戦の予約から対局、結果画面を閉じて次の対局まで自動で行います。",
-        "zero_setup_title": "すぐに使える",
-        "zero_setup_desc": "ダウンロードして解凍、実行するだけ。AI はバイナリに同梱。",
-        "image_alt": "AkagiMS が全自動モードで段位戦をプレイ中",
-        "link_label": "ダウンロード"
+      "v1_0_0": {
+        "title": "雀魂専用フォーク",
+        "scope_title": "1プラットフォーム、1環境",
+        "scope_desc": "天鳳と麻雀一番街の対応、リリース配布、アプリ内アップデータを削除しました。残したのは macOS でソースから動かす雀魂だけです。",
+        "timing_title": "実測に基づく打牌タイミング",
+        "timing_desc": "自動打牌の待ち時間は、実際のゲートウェイログで計測した対戦相手に合わせたモデルから生成します。適用は scripts/apply-profile.sh です。",
+        "profiles_title": "ブラウザプロファイルの指定",
+        "profiles_desc": "--profile NAME を付けて起動すると、アカウントごとにブラウザプロファイルを分けられます。device_id とログインもそれぞれ独立します。"
       }
     }
   },

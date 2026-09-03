@@ -300,8 +300,21 @@ removing regenerable bytes; `dedupe` hardlinks the identical dependency trees
 that separate bot venvs would otherwise each pay for (~400 MB for two Mortal
 bots).
 
+**No auto-updater, no upstream links.** Upstream ships an in-app updater that
+downloads a signed binary from its GitHub releases and swaps itself out. That
+can't work for a fork run from source, and pulling upstream's binary over this
+one would undo every change here, so the updater and its UI are gone. The
+outbound links that came with it — upstream's repository, its community server,
+its sibling build and that build's promo card — are gone too. Release-asset
+signature checking stays, because installing a bot still uses it.
+
+**Versioned independently.** `1.0.0+akagi.3.7.0`: this fork's own version,
+with the upstream release it forked from in the build metadata. Cargo and
+semver ignore what follows `+` when comparing, so the fork can move at its own
+pace while the origin stays legible.
+
 **Stripped for size.** No CI workflows, release packaging, signing, binary
-test fixtures, or training scripts. The unit tests are intact — 843 on the
+test fixtures, or training scripts. The unit tests are intact — 826 on the
 Rust side, 94 in the frontend. Non-macOS-arm64 `libriichi` binaries and
 non-Japanese READMEs are gone. `native_bot` lost its `extract` binary and
 replay module. Cargo is now a workspace, so there's a single lockfile.

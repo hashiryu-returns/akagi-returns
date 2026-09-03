@@ -1,8 +1,7 @@
 //! Shared primitives for talking to the GitHub Releases API.
 //!
-//! Used by `bot::install` (download + extract a bot from a release zip)
-//! and `updater` (download + extract Akagi's own binary from a release
-//! zip). Both clients hit `api.github.com/repos/<repo>/releases/latest`
+//! Used by `bot::install` to download and extract a bot from a release
+//! zip. It hits `api.github.com/repos/<repo>/releases/latest`
 //! anonymously, with a `User-Agent: akagi/<version>` header.
 //!
 //! Submodules:
@@ -39,10 +38,9 @@ const CHUNK_STALL_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// One asset entry from `releases/latest`.
 ///
-/// `size` and `digest` are optional because the older bot-install path
-/// doesn't need them, and the digest field only started appearing in
-/// 2024 — old releases lack it. The updater verifies SHA-256 when
-/// present and warns (but doesn't fail) when absent.
+/// `size` and `digest` are optional because the bot-install path doesn't
+/// need them, and the digest field only started appearing in 2024 — old
+/// releases lack it.
 #[derive(Debug, Deserialize, Clone)]
 pub struct Asset {
     pub name: String,
@@ -276,6 +274,21 @@ pub fn extract_zip_safe(zip_path: &Path, dest_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Extract the hex SHA-256 portion of a GitHub asset `digest` string,
+/// which is shaped like `"sha256:abcdef..."`. Returns `None` for an
+/// empty / wrong-algorithm / wrong-shape input.
+pub fn parse_sha256_digest(raw: &str) -> Option<String> {
+    let (algo, hex) = raw.split_once(':')?;
+    if !algo.eq_ignore_ascii_case("sha256") {
+        return None;
+    }
+    let hex = hex.trim();
+    if hex.len() != 64 || !hex.chars().all(|c| c.is_ascii_hexdigit()) {
+        return None;
+    }
+    Some(hex.to_ascii_lowercase())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -366,5 +379,33 @@ mod tests {
         let asset: Asset = serde_json::from_str(raw).unwrap();
         assert!(asset.size.is_none());
         assert!(asset.digest.is_none());
+    }
+
+    #[test]
+    fn parse_sha256_digest_accepts_valid_form() {
+        let raw = "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+        assert_eq!(parse_sha256_digest(raw), Some(raw[7..].to_owned()));
+    }
+
+    #[test]
+    fn parse_sha256_digest_normalises_case() {
+        let raw = "SHA256:ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+        assert_eq!(
+            parse_sha256_digest(raw).unwrap(),
+            raw[7..].to_ascii_lowercase()
+        );
+    }
+
+    #[test]
+    fn parse_sha256_digest_rejects_wrong_algo_or_shape() {
+        assert!(parse_sha256_digest("md5:abc").is_none());
+        assert!(parse_sha256_digest("sha256:").is_none());
+        assert!(parse_sha256_digest("sha256:notenoughhex").is_none());
+        assert!(parse_sha256_digest("nocolonhere").is_none());
+        // Not 64 chars
+        assert!(parse_sha256_digest("sha256:abc123").is_none());
+        // Non-hex char
+        let bad = "sha256:".to_owned() + &"z".repeat(64);
+        assert!(parse_sha256_digest(&bad).is_none());
     }
 }

@@ -1,9 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
-import { AppWindow, Bot, CloudCog, CreditCard, Download, Gamepad2, SearchCheck, Zap } from 'lucide-react'
+import { AppWindow, Gamepad2, Timer } from 'lucide-react'
 
-import { AKAGIMS_DOWNLOAD_URL } from '@/lib/external'
-import akagimsScreenshot from '@/assets/akagims-fullauto.jpg'
-import mjotlogodarkbg from '@/assets/mjot-logo-dark-bg.png'
 
 /** One feature highlight inside an announcement's expanded view. */
 export type AnnouncementFeature = {
@@ -42,44 +39,21 @@ export type AnnouncementEntry = {
 /**
  * All in-app announcements, newest first. Add an entry (plus locale
  * strings in all four i18n resources) for every release.
+ *
+ * Upstream's release notes are not carried here. They described a
+ * cross-platform application with an in-app updater and a companion
+ * download, none of which this fork is, so keeping them would have meant
+ * announcing features the build does not have.
  */
 export const ANNOUNCEMENTS: AnnouncementEntry[] = [
   {
-    id: 'v3_7_0',
-    date: '2026-08-25',
-    version: '3.7.0',
-    // Upstream's Riichi City autoplay highlight is dropped here, as is
-    // Tenhou's below: this fork supports Mahjong Soul only, and an
-    // announcement for a platform the build cannot reach is just a false
-    // claim in the UI.
-    features: [{ icon: SearchCheck, key: 'review' }],
-  },
-  {
-    id: 'v3_6_0',
-    date: '2026-08-14',
-    version: '3.6.0',
-    features: [{ icon: Download, key: 'update_source' }],
-  },
-  {
-    id: 'v3_5_0',
-    date: '2026-08-12',
-    version: '3.5.0',
-    image: mjotlogodarkbg,
+    id: 'v1_0_0',
+    date: '2026-09-03',
+    version: '1.0.0',
     features: [
-      { icon: CreditCard, key: 'checkout' },
-      { icon: CloudCog, key: 'health' },
-    ],
-  },
-  {
-    id: 'akagims',
-    date: '2026-08-09',
-    image: akagimsScreenshot,
-    link: AKAGIMS_DOWNLOAD_URL,
-    features: [
-      { icon: Gamepad2, key: 'majsoul' },
-      { icon: AppWindow, key: 'embedded' },
-      { icon: Bot, key: 'fullauto' },
-      { icon: Zap, key: 'zero_setup' },
+      { icon: Gamepad2, key: 'scope' },
+      { icon: Timer, key: 'timing' },
+      { icon: AppWindow, key: 'profiles' },
     ],
   },
 ]

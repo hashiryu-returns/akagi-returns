@@ -13,11 +13,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { type AnnouncementEntry } from '@/announcements/entries'
+import { openExternal } from '@/lib/external'
 import { useAnnouncementStore } from '@/stores/announcementStore'
-import { AKAGI_GITHUB_URL, openExternal } from '@/lib/external'
 
 // Delay so the announcements don't pop over the very first paint; keeps
-// them clear of the UpdateNotifier toast (3s), which stacks fine next to
+// them clear of any startup toast, which stacks fine next to
 // a dialog.
 const OPEN_DELAY_MS = 1500
 
@@ -67,13 +67,6 @@ export function AnnouncementsDialog() {
         <AnnouncementList key={entries.map((e) => e.id).join('|')} entries={entries} />
 
         <DialogFooter className="bg-transparent p-0 border-0 mx-0 mb-0 flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => openExternal(`${AKAGI_GITHUB_URL}/releases`)}
-          >
-            {t('announcements.dialog.all_releases')}
-          </Button>
           <Button size="sm" onClick={close}>
             {t('announcements.dialog.got_it')}
           </Button>

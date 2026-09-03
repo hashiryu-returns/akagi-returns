@@ -10,12 +10,6 @@ const SCALE_KEY = 'akagi.ui.scale'
 // this tracks "has seen the tutorial", not layout state.
 const ONBOARDED_KEY = 'akagi.dashboard.onboarded'
 
-// The AkagiMS Overview promo card's dismissed flag. (The old standalone
-// AkagiMS announcement dialog was folded into the unified announcements
-// system — see announcementStore — so only the card state remains here;
-// its former `akagi.announcement.akagims{,.shows}` keys are abandoned.)
-const AKAGIMS_CARD_KEY = 'akagi.announcement.akagims.card'
-
 export const SCALE_MIN = 0.7
 export const SCALE_MAX = 1.5
 export const SCALE_STEP = 0.05
@@ -46,14 +40,6 @@ function loadFlag(key: string): boolean {
   }
 }
 
-function storeFlag(key: string) {
-  try {
-    localStorage.setItem(key, '1')
-  } catch {
-    /* quota — ignore */
-  }
-}
-
 type UiPrefsStore = {
   scale: number
   setScale: (v: number) => void
@@ -61,9 +47,6 @@ type UiPrefsStore = {
   /** Whether the dashboard onboarding hint has been dismissed at least once. */
   dashboardOnboarded: boolean
   markDashboardOnboarded: () => void
-  /** Whether the Overview AkagiMS promo card has been dismissed. */
-  akagimsCardDismissed: boolean
-  markAkagimsCardDismissed: () => void
 }
 
 export const useUiPrefsStore = create<UiPrefsStore>((set) => ({
@@ -93,10 +76,5 @@ export const useUiPrefsStore = create<UiPrefsStore>((set) => ({
       /* quota — ignore */
     }
     set({ dashboardOnboarded: true })
-  },
-  akagimsCardDismissed: loadFlag(AKAGIMS_CARD_KEY),
-  markAkagimsCardDismissed: () => {
-    storeFlag(AKAGIMS_CARD_KEY)
-    set({ akagimsCardDismissed: true })
   },
 }))

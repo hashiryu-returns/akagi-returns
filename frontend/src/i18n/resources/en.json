@@ -498,8 +498,7 @@
     "welcome": {
       "title": "Welcome to Akagi",
       "body1": "Akagi watches your mahjong game traffic and runs an mjai-protocol bot alongside it for realtime advice. Before the bot can do anything, Akagi needs a way to capture the game's WebSocket traffic.",
-      "body2": "On the next page you'll pick between the legacy MITM proxy (powerful but requires CA-cert trust) and a controlled Chromium browser (no proxy / certificate setup — Akagi launches its own browser window).",
-      "links_label": "Project home and community:"
+      "body2": "On the next page you'll pick between the legacy MITM proxy (powerful but requires CA-cert trust) and a controlled Chromium browser (no proxy / certificate setup — Akagi launches its own browser window)."
     },
     "mode": {
       "title": "Pick a capture mode",
@@ -538,10 +537,7 @@
       "normal_desc": "These knobs let you tweak bot behaviour. You can change them later under Bots → Configure.",
       "no_settings": "No tunable settings.",
       "loading_bot": "Loading {{name}}…",
-      "loading": "Loading bot settings…",
-      "models_title": "Stronger models on Discord",
-      "models_body": "The Mortal weights bundled with this install are only there to verify that the install works — not recommended for real play. Stronger weights are available on the Discord server.",
-      "models_btn": "Open Discord"
+      "loading": "Loading bot settings…"
     },
     "finish": {
       "title": "All set",
@@ -812,90 +808,21 @@
     "riichi_city": "Riichi City",
     "mjai": "mjai"
   },
-  "updates": {
-    "toast": {
-      "title": "Akagi {{version}} is available",
-      "action": "View details"
-    },
-    "dialog": {
-      "title": "Update available: Akagi {{version}}",
-      "notes_heading": "Release notes",
-      "no_notes": "No release notes were provided.",
-      "update_now": "Update now",
-      "skip": "Skip this version",
-      "later": "Later",
-      "open_release": "Open release page",
-      "applying": "Downloading and applying…",
-      "runtime_caveat": "Auto-update swaps the binary in place. If the bundled Python runtime changed in this release the app may misbehave — reinstall from the release page in that case.",
-      "error_read_only": "Akagi can't write to its install directory. Open the release page to update manually.",
-      "error_unsupported_platform": "Auto-update is not available for your platform. Open the release page to download manually.",
-      "error_no_matching_asset": "This release has no build for your platform yet.",
-      "error_digest_mismatch": "Downloaded file doesn't match the release checksum. Try again or download manually.",
-      "error_signature_missing": "This release is unsigned and the download would go through a mirror. Open the release page to update manually.",
-      "error_signature_invalid": "Signature verification failed for the downloaded file. Refusing to install — try again or download manually.",
-      "error_generic": "Update failed: {{message}}"
-    },
-    "settings": {
-      "title": "Updates",
-      "current": "Current version",
-      "check_now": "Check for updates",
-      "checking": "Checking…",
-      "up_to_date": "You're on the latest version.",
-      "last_checked": "Last checked: {{when}}",
-      "never_checked": "Never checked",
-      "auto_check": "Check for updates on launch",
-      "available": "Update available: {{version}}",
-      "skipped_label": "Skipped version",
-      "clear_skipped": "Clear skipped version",
-      "none_skipped": "None"
-    }
-  },
   "announcements": {
-    "akagims": {
-      "card_title": "AkagiMS — the standalone app for Mahjong Soul",
-      "card_desc": "Embedded game client, full-auto play, zero setup. Download, unzip, run.",
-      "card_dismiss": "Dismiss",
-      "screenshot_alt": "AkagiMS playing a ranked match by itself in full-auto mode",
-      "view_download": "Download"
-    },
     "dialog": {
       "title": "Announcements",
       "intro": "Release highlights and news from the Akagi project.",
-      "got_it": "Got it",
-      "all_releases": "All release notes",
-      "settings_button": "Announcements"
+      "got_it": "Got it"
     },
     "entries": {
-      "v3_7_0": {
-        "title": "Whole-game review (Beta)",
-        "review_title": "Whole-game review (Beta)",
-        "review_desc": "Submit any recorded game for a full AI review and see where your play matched — or missed — the AI's choice in the MJOT viewer, with a shareable result link."
-      },
-      "v3_6_0": {
-        "title": "Selectable update sources",
-        "update_source_title": "Choose your update source",
-        "update_source_desc": "The auto-updater now lets you pick where downloads come from, with a mirror option for faster, more reliable updates where GitHub is slow."
-      },
-      "v3_5_0": {
-        "title": "In-app purchases: Alipay, Apple Pay, Google Pay",
-        "image_alt": "The MJOT cloud AI logo",
-        "checkout_title": "In-app checkout",
-        "checkout_desc": "Buy or renew MJOT time without leaving the app — card, Google Pay, Apple Pay and Alipay.",
-        "health_title": "Smarter renewals & health checks",
-        "health_desc": "Renewals extend your current key by default, and the service health check now reports queue depth and degraded states."
-      },
-      "akagims": {
-        "title": "AkagiMS: a standalone app built for Mahjong Soul",
-        "majsoul_title": "Made for Mahjong Soul",
-        "majsoul_desc": "Purpose-built for one game, with everything tuned around it.",
-        "embedded_title": "Built-in game client",
-        "embedded_desc": "Mahjong Soul opens inside the app window — no proxy, no certificate, no second browser.",
-        "fullauto_title": "Full-auto play",
-        "fullauto_desc": "Queues ranked matches, plays them out, closes the results and queues the next one.",
-        "zero_setup_title": "Zero setup",
-        "zero_setup_desc": "Download, unzip, run. The AI ships inside the binary.",
-        "image_alt": "AkagiMS playing a ranked match by itself in full-auto mode",
-        "link_label": "Download"
+      "v1_0_0": {
+        "title": "A Mahjong Soul-only fork",
+        "scope_title": "One platform, one machine",
+        "scope_desc": "Tenhou and Riichi City support, release packaging and the in-app updater are gone. What is left is Mahjong Soul on macOS, run from a source checkout.",
+        "timing_title": "Timing fitted to real opponents",
+        "timing_desc": "Autoplay delays come from a model fitted to opponents measured in actual gateway logs, applied with scripts/apply-profile.sh, rather than the values shipped upstream.",
+        "profiles_title": "Named browser profiles",
+        "profiles_desc": "Run with --profile NAME to keep accounts on separate browser profiles, each with its own device_id and logins."
       }
     }
   },

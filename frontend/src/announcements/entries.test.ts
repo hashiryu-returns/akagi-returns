@@ -83,7 +83,7 @@ describe('ANNOUNCEMENTS data', () => {
   })
 
   it('has the dialog UI strings in every locale', () => {
-    const needed = ['title', 'intro', 'got_it', 'all_releases', 'settings_button']
+    const needed = ['title', 'intro', 'got_it']
     for (const locale of Object.keys(LOCALES) as (keyof typeof LOCALES)[]) {
       const block = announcementsOf(locale)
       for (const key of needed) {

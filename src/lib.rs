@@ -15,7 +15,6 @@ pub mod logger;
 pub mod platform;
 pub mod proxy;
 pub mod schema;
-pub mod updater;
 pub mod util;
 
 use clap::Parser;

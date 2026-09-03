@@ -5,7 +5,6 @@ import { NarrowTopBar } from '@/components/sidebar/NarrowTopBar'
 import { Statusbar } from '@/components/Statusbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
-import { UpdateNotifier } from '@/components/UpdateNotifier'
 import { AnnouncementsDialog } from '@/components/AnnouncementsDialog'
 import { InstallBlockingOverlay } from '@/components/InstallBlockingOverlay'
 import { useTauriBridge } from '@/hooks/useTauriBridge'
@@ -59,7 +58,6 @@ export default function App() {
         <Statusbar />
       </main>
       <Toaster />
-      <UpdateNotifier />
       <AnnouncementsDialog />
       <InstallBlockingOverlay />
     </>

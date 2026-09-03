@@ -143,7 +143,7 @@ pub async fn install_from_github_release(
         if let Some(expected) = asset
             .digest
             .as_deref()
-            .and_then(crate::updater::check::parse_sha256_digest)
+            .and_then(crate::github::parse_sha256_digest)
         {
             if !zip_digest.eq_ignore_ascii_case(&expected) {
                 let _ = tokio::fs::remove_file(&tempfile_path).await;

@@ -1340,63 +1340,6 @@ pub async fn delete_game_history_entry(id: String, state: State<'_, AppState>) -
     Ok(removed)
 }
 
-/// `shinkuan/Akagi` is the canonical upstream — kept here as a const
-/// instead of plumbing through config so the user can't accidentally
-/// point the auto-updater at a fork.
-const UPSTREAM_REPO: &str = "shinkuan/Akagi";
-
-/// One-shot "is there a newer release?" — frontend calls this on app
-/// launch (with a 6h cache) and from the Settings "Check for updates"
-/// button. Returns `Ok(None)` for "already up to date" or unsupported
-/// platforms; `Err(String)` for network / parse failures (the toast in
-/// the frontend surfaces the message verbatim).
-#[tauri::command]
-pub async fn check_for_update(
-    state: State<'_, AppState>,
-) -> CmdResult<Option<crate::updater::UpdateInfo>> {
-    let Ok(_guard) = state.updater_lock.try_lock() else {
-        return Err("another update operation is in progress".into());
-    };
-    let net = state.config.read().await.network.clone();
-    let info = crate::updater::check_for_update(UPSTREAM_REPO, &net)
-        .await
-        .map_err(|e| format!("check for update: {e:#}"))?;
-    // Stash server-side: `apply_update` acts only on what *we* fetched,
-    // never on an UpdateInfo the webview hands back.
-    *state.pending_update.write().await = info.clone();
-    Ok(info)
-}
-
-/// Download the release zip found by the last `check_for_update`
-/// (mirror fallback per `[network]` config), verify digest + minisign
-/// signature, swap the binary via `self_replace::self_replace`, then
-/// relaunch. Takes no payload — the pending update is read from
-/// `AppState`, so the webview cannot substitute its own URLs or trust
-/// markers. On success the process exits inside `app.restart()` and
-/// this never returns. The typed error variant lets the frontend
-/// distinguish "fall back to release page" (`read_only_install`,
-/// `unsupported_platform`, `no_matching_asset`, `signature_missing`)
-/// from a real network / integrity error.
-#[tauri::command]
-pub async fn apply_update(
-    app: tauri::AppHandle,
-    state: State<'_, AppState>,
-) -> Result<(), crate::updater::UpdateError> {
-    let Ok(_guard) = state.updater_lock.try_lock() else {
-        return Err(crate::updater::UpdateError::Other {
-            message: "another update operation is in progress".into(),
-        });
-    };
-    let info = state.pending_update.read().await.clone();
-    let Some(info) = info else {
-        return Err(crate::updater::UpdateError::Other {
-            message: "no pending update — run a check first".into(),
-        });
-    };
-    let net = state.config.read().await.network.clone();
-    crate::updater::apply::download_and_apply(&app, &info, &net).await
-}
-
 // ---------- Built-in bot cloud inference (native API) ----------
 //
 // Thin passthroughs to `crate::bot::api`. They take the server URL / key as
@@ -1789,8 +1732,6 @@ macro_rules! ipc_handlers {
             $crate::ipc::commands::get_game_history_record,
             $crate::ipc::commands::get_game_history_events,
             $crate::ipc::commands::delete_game_history_entry,
-            $crate::ipc::commands::check_for_update,
-            $crate::ipc::commands::apply_update,
             $crate::ipc::commands::native_api_redeem,
             $crate::ipc::commands::native_api_key_status,
             $crate::ipc::commands::native_api_models,

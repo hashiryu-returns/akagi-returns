@@ -13,12 +13,9 @@ import {
 } from '@/components/ui/tooltip'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useIsNarrow } from '@/hooks/useIsNarrow'
-import { GithubMark, DiscordMark } from '@/components/BrandMarks'
 import { AkagiIcon, AkagiWordmark } from '@/components/BrandLogo'
-import { AKAGI_GITHUB_URL, AKAGI_DISCORD_URL, AKAGIMS_GITHUB_URL, openExternal } from '@/lib/external'
 import { getAppVersion, VERSION_FALLBACK } from '@/lib/appVersion'
 import { LANG_LABELS, SUPPORTED_LANGS, type SupportedLang } from '@/i18n'
-import { selectHasNotifiableUpdate, useUpdaterStore } from '@/stores/updaterStore'
 import { useAnnouncementStore } from '@/stores/announcementStore'
 import { Menu } from './Menu'
 
@@ -36,8 +33,6 @@ export function Sidebar() {
   // on pushes a new history entry without changing the path, and the drawer
   // still has to get out of the way.
   const { key: locationKey } = useLocation()
-  const hasUpdate = useUpdaterStore(selectHasNotifiableUpdate)
-  const openUpdateDialog = useUpdaterStore((s) => s.openDialog)
   const [version, setVersion] = useState(VERSION_FALLBACK)
   useEffect(() => {
     getAppVersion().then(setVersion)
@@ -156,10 +151,9 @@ export function Sidebar() {
             ))}
         </div>
         <Menu isOpen={open} />
-        {/* Footer icon row — announcements plus the GitHub / Discord /
-            AkagiMS links. Always rendered, even when collapsed, so all
-            stay reachable in both states. The version + language picker
-            rides along below it but only when there's room (open state). */}
+        {/* Footer icon row. Rendered in both states so announcements stay
+            reachable when collapsed; the version + language picker rides
+            along below it but only when there's room (open state). */}
         <div
           className={cn(
             // flex-wrap: the collapsed rail (5.625rem) fits two icon
@@ -175,52 +169,10 @@ export function Sidebar() {
           >
             <Megaphone className="h-4 w-4" />
           </SidebarIconButton>
-          <SidebarIconButton
-            label="GitHub"
-            collapsed={!open}
-            onClick={() => openExternal(AKAGI_GITHUB_URL)}
-          >
-            <GithubMark className="h-4 w-4" />
-          </SidebarIconButton>
-          <SidebarIconButton
-            label="Discord"
-            collapsed={!open}
-            onClick={() => openExternal(AKAGI_DISCORD_URL)}
-          >
-            <DiscordMark className="h-4 w-4" />
-          </SidebarIconButton>
-          <SidebarIconButton
-            label="AkagiMS"
-            collapsed={!open}
-            onClick={() => openExternal(AKAGIMS_GITHUB_URL)}
-          >
-            <AkagiIcon className="h-4 w-4" />
-          </SidebarIconButton>
         </div>
         {open && (
           <div className="mt-2 shrink-0 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            <button
-              type="button"
-              onClick={hasUpdate ? openUpdateDialog : undefined}
-              className={cn(
-                'flex items-center gap-1.5 rounded px-1 py-0.5',
-                hasUpdate
-                  ? 'cursor-pointer hover:text-foreground'
-                  : 'cursor-default',
-              )}
-              aria-label={
-                hasUpdate ? t('updates.toast.action') : undefined
-              }
-              disabled={!hasUpdate}
-            >
-              <span>v{version}</span>
-              {hasUpdate && (
-                <span
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-red-500"
-                  aria-hidden="true"
-                />
-              )}
-            </button>
+            <span className="px-1 py-0.5">v{version}</span>
             <select
               className="bg-transparent border border-border rounded px-1.5 py-0.5"
               value={i18n.language}

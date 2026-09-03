@@ -1,5 +1,5 @@
 // Official MJOT brand marks — MJOT is the online inference API the built-in
-// bot talks to. Inline SVGs (same pattern as BrandMarks) rather than static
+// bot talks to. Inline SVGs rather than static
 // image files so the marks adapt to the active theme: the ink maps to
 // `--foreground` and the tile face to `--background`, which reproduces the
 // official light variant (dark ink on white) on light themes and the official

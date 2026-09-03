@@ -3,7 +3,11 @@ members = ["native_bot"]
 
 [package]
 name = "akagi"
-version = "3.7.0"
+# This fork versions independently of upstream. The build metadata after `+`
+# records which Akagi release it was forked from; semver ignores it when
+# comparing, which is correct — 1.0.0 here is not "older" than upstream 3.7.0,
+# it is a different line.
+version = "1.0.0+akagi.3.7.0"
 edition = "2021"
 
 [lib]
@@ -74,8 +78,6 @@ form_urlencoded = "1.2.2"
 # form semantics, so `form_urlencoded` would be wrong for them).
 percent-encoding = "2.3"
 time = "0.3"
-self-replace = "1"
-semver = "1"
 sha1 = "0.11.0"
 sha2 = "0.11"
 x509-parser = "0.18.1"

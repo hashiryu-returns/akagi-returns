@@ -22,32 +22,32 @@ async function freshStore() {
   return mod
 }
 
-describe('uiPrefsStore AkagiMS promo card state', () => {
+describe('uiPrefsStore dashboard onboarding state', () => {
   beforeEach(() => {
     stubLocalStorage()
   })
 
-  it('defaults to not dismissed on first launch', async () => {
+  it('defaults to not onboarded on first launch', async () => {
     const { useUiPrefsStore } = await freshStore()
-    expect(useUiPrefsStore.getState().akagimsCardDismissed).toBe(false)
+    expect(useUiPrefsStore.getState().dashboardOnboarded).toBe(false)
   })
 
-  it('persists dismissal across restarts', async () => {
-    const { useUiPrefsStore } = await freshStore()
-    useUiPrefsStore.getState().markAkagimsCardDismissed()
-    expect(localStorage.getItem('akagi.announcement.akagims.card')).toBe('1')
-
-    const restarted = await freshStore()
-    expect(restarted.useUiPrefsStore.getState().akagimsCardDismissed).toBe(true)
-  })
-
-  it('keeps the card flag independent of dashboard onboarding', async () => {
+  it('persists across restarts', async () => {
     const { useUiPrefsStore } = await freshStore()
     useUiPrefsStore.getState().markDashboardOnboarded()
-    expect(useUiPrefsStore.getState().akagimsCardDismissed).toBe(false)
+    expect(localStorage.getItem('akagi.dashboard.onboarded')).toBe('1')
 
     const restarted = await freshStore()
     expect(restarted.useUiPrefsStore.getState().dashboardOnboarded).toBe(true)
-    expect(restarted.useUiPrefsStore.getState().akagimsCardDismissed).toBe(false)
+  })
+
+  it('is independent of the UI scale', async () => {
+    const { useUiPrefsStore } = await freshStore()
+    useUiPrefsStore.getState().setScale(1.25)
+    expect(useUiPrefsStore.getState().dashboardOnboarded).toBe(false)
+
+    const restarted = await freshStore()
+    expect(restarted.useUiPrefsStore.getState().scale).toBeCloseTo(1.25)
+    expect(restarted.useUiPrefsStore.getState().dashboardOnboarded).toBe(false)
   })
 })

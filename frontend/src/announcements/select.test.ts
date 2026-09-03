@@ -8,9 +8,9 @@ function entry(id: string, date: string, version?: string): AnnouncementEntry {
   return { id, date, version, features: [{ icon: Sparkles, key: 'x' }] }
 }
 
-// Newest first, like the real data. `news` has no version (product news,
-// e.g. the AkagiMS announcement); selection is purely by date, so a
-// version-less entry is treated like any other.
+// Newest first, like the real data. `news` has no version (an entry that
+// isn't tied to a release); selection is purely by date, so a version-less
+// entry is treated like any other.
 const ENTRIES: AnnouncementEntry[] = [
   entry('v3_6_0', '2026-09-01', '3.6.0'),
   entry('v3_5_0', '2026-08-12', '3.5.0'),

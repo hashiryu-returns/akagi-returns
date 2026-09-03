@@ -23,10 +23,8 @@ import { withFirstRunCaptureDefault } from '@/lib/setupDefaults'
 import { useTauriBridge } from '@/hooks/useTauriBridge'
 import { useConfigStore } from '@/stores/configStore'
 import { ManifestField } from '@/components/ManifestField'
-import { GithubMark, DiscordMark } from '@/components/BrandMarks'
 import { MjotLogo } from '@/components/MjotBrand'
 import { NATIVE_3P, NATIVE_4P, isNativeBot } from '@/lib/nativeBots'
-import { AKAGI_GITHUB_URL, AKAGI_DISCORD_URL, openExternal } from '@/lib/external'
 import { platformInfo, majsoulServerLabelKey } from '@/lib/platforms'
 import { MajsoulServerSelect } from '@/components/MajsoulServerSelect'
 import { LANG_LABELS, SUPPORTED_LANGS, type SupportedLang } from '@/i18n'
@@ -317,31 +315,6 @@ function WelcomeStep() {
         {t('setup.welcome.body2')}
       </p>
 
-      {/* Official project links — surfaced early so a fresh user can
-          find the canonical repo / community before going any further.
-          Intentionally low-key (no banner / colour) since these are
-          informational, not warnings. */}
-      <div className="flex flex-wrap items-center gap-2 mt-1">
-        <span className="text-xs text-muted-foreground mr-1">
-          {t('setup.welcome.links_label')}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => openExternal(AKAGI_GITHUB_URL)}
-        >
-          <GithubMark className="h-4 w-4 mr-1.5" />
-          GitHub
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => openExternal(AKAGI_DISCORD_URL)}
-        >
-          <DiscordMark className="h-4 w-4 mr-1.5" />
-          Discord
-        </Button>
-      </div>
     </div>
   )
 }
@@ -798,29 +771,6 @@ function ConfigureBotsStep({
             {t('setup.configure.normal_desc')}
           </p>
 
-          {/* The Mortal weights bundled in the GitHub release are a
-              placeholder forced by GitHub's file-size limit — they prove
-              the install works but aren't strong enough for real play.
-              Point users at Discord for the real weights. */}
-          <div className="rounded-md border border-indigo-500/40 bg-indigo-500/10 p-3 grid gap-2">
-            <div className="flex items-center gap-2 text-indigo-200 font-semibold text-sm">
-              <DiscordMark className="h-4 w-4" />
-              {t('setup.configure.models_title')}
-            </div>
-            <p className="text-sm text-indigo-100/90">
-              {t('setup.configure.models_body')}
-            </p>
-            <div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => openExternal(AKAGI_DISCORD_URL)}
-              >
-                <DiscordMark className="h-4 w-4 mr-1.5" />
-                {t('setup.configure.models_btn')}
-              </Button>
-            </div>
-          </div>
           {wizardBots.map((b) => (
             <BotSettingsForm
               key={b.name}
