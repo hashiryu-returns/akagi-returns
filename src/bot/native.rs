@@ -30,14 +30,14 @@
 //! - **Fallback** — if the server is unreachable, rate-limited, or the key is
 //!   invalid, we play the local model's action so a live game never stalls.
 //! - **Circuit breaker** — after a failed call the API is skipped for a growing
-//!   backoff window ([`Breaker`]), so a dead server costs one slow turn rather
+//!   backoff window (`Breaker`), so a dead server costs one slow turn rather
 //!   than a timeout on every single decision for the rest of the game.
 //!
 //! The remote service is stateless: every call re-uploads the current kyoku's
 //! mjai stream (from our seat's censored perspective). We accumulate that
-//! stream in [`NativeBot::stream`] — unconditionally, so switching the API on
+//! stream in `NativeBot::stream` — unconditionally, so switching the API on
 //! mid-kyoku has a complete stream to send — and shape it for the API in
-//! [`build_api_events`].
+//! `build_api_events`.
 
 use crate::bot::api::{ApiClient, Candidate};
 use crate::bot::runner::BotRunner;
@@ -207,7 +207,7 @@ pub struct NativeBot {
 impl NativeBot {
     /// Build the in-process bot for a game of `num_players` with our seat at
     /// `actor_id`, loading the bundled default weights for that mode. The cloud
-    /// session starts unset; [`NativeBot::apply_api_config`] establishes it.
+    /// session starts unset; `NativeBot::apply_api_config` establishes it.
     pub fn new(
         actor_id: u8,
         num_players: u8,

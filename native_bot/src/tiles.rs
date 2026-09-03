@@ -1,5 +1,5 @@
 //! Tile-index helpers shared by the observation encoder, the action codec,
-//! the extractor, and inference.
+//! upstream's extractor, and inference.
 //!
 //! riichienv-core represents tiles as raw 136-space ids (`tid`, 0..=135):
 //! `tile34 = tid / 4` (0..=33), with red-fives at the specific ids

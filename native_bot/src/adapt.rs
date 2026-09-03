@@ -1,6 +1,6 @@
 //! Adapters that turn a riichienv-core observation into our [`EncInput`].
 //!
-//! Used identically by the extractor and by live inference, which is what
+//! Used identically by upstream's extractor and by live inference, which is what
 //! guarantees train/inference feature parity.
 //!
 //! ## `last_discard` is read from the state, not the observation
@@ -23,7 +23,7 @@ use riichienv_core::state_3p::GameState3P;
 use crate::obs::{EncInput, SeatFeat};
 
 /// Snapshot `(encoded obs, legal actions)` for `seat` from a 4-player engine.
-/// Shared by the extractor and live inference so features always match.
+/// Shared with upstream's extractor so features always match.
 pub fn obs_and_legal_4p(state: &mut GameState, seat: u8) -> (Vec<f32>, Vec<Action>) {
     let turn = state.turn_count;
     // `(discarder_pid, tile)` — see the module docs on why this can't come from

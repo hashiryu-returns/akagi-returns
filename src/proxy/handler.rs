@@ -669,7 +669,7 @@ impl HttpHandler for ProxyHandler {
     }
 
     /// Skip MITM only for the narrow case of `CONNECT <ip-literal>:443` on
-    /// **Mahjong Soul** (see [`should_raw_tunnel`]).
+    /// **Mahjong Soul** (see `should_raw_tunnel`).
     ///
     /// Some game / app clients (catfood-studio Mahjong Soul Steam build)
     /// resolve DNS themselves and connect to a CDN by raw IP, but the CDN

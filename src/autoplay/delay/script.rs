@@ -17,7 +17,7 @@
 //!   no io/os/debug, no `load`/`dofile`/`loadfile` (bytecode and
 //!   filesystem escapes), no `pcall`/`xpcall` (they could swallow the
 //!   runaway-guard abort), no `string.dump`.
-//! - A hard allocation ceiling ([`MEMORY_LIMIT_BYTES`]) — allocation
+//! - A hard allocation ceiling (`MEMORY_LIMIT_BYTES`) — allocation
 //!   failure becomes a normal Lua error, not a process abort.
 //! - Instruction budget + wall-clock deadline via a VM hook, active
 //!   both while the chunk's top level runs at load time and during
@@ -363,7 +363,7 @@ pub struct ScriptHost {
 impl ScriptHost {
     /// Write [`DEFAULT_SCRIPT`] to `path` if no file exists there yet,
     /// or if the existing file is an unmodified copy of an earlier
-    /// bundled default (see [`SUPERSEDED_DEFAULT_SCRIPTS`]) — without
+    /// bundled default (see `SUPERSEDED_DEFAULT_SCRIPTS`) — without
     /// this, installs that generated `delay.lua` on an older version
     /// would keep its behaviour forever after an update. A deleted file
     /// is regenerated on the next start; a failure (e.g. read-only

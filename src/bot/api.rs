@@ -288,7 +288,7 @@ pub struct ApiClient {
 
 impl ApiClient {
     /// Build a client for `base_url` authenticating with `key`, optionally
-    /// routing through `proxy` (see [`http_client`]; empty ⇒ direct). A
+    /// routing through `proxy` (see `http_client`; empty ⇒ direct). A
     /// trailing slash on the URL is tolerated. The react timeout starts at the
     /// [`REACT_TIMEOUT`] default; use [`Self::with_react_timeout`] to override.
     pub fn new(base_url: &str, key: &str, proxy: &str) -> Result<Self> {
@@ -312,8 +312,8 @@ impl ApiClient {
     /// `POST /v3/react` — the move for the final event of `events`. `model`
     /// `None`/empty lets the server pick its game default.
     ///
-    /// Bounded by [`Self::react_timeout`] (the configured react timeout) rather
-    /// than the client-wide [`REQUEST_TIMEOUT`]: this one blocks the bot's turn.
+    /// Bounded by `Self::react_timeout` (the configured react timeout) rather
+    /// than the client-wide `REQUEST_TIMEOUT`: this one blocks the bot's turn.
     pub async fn react(
         &self,
         model: Option<&str>,
@@ -389,7 +389,7 @@ impl ApiClient {
     /// Rate limits worth surfacing to the user: one accepted submit per key
     /// per 10 minutes, `reviews_per_day` per UTC day, and one queued/running
     /// job per key at a time — all answered as `429` with `Retry-After`,
-    /// which [`check`] folds into the error message.
+    /// which `check` folds into the error message.
     pub async fn submit_review(
         &self,
         model: Option<&str>,

@@ -11,7 +11,7 @@
 //! a `.zip` already on disk — then run the same shared tail. The user's zip is
 //! never modified or deleted.
 //!
-//! Shared tail ([`extract_place_and_finalize`]):
+//! Shared tail (`extract_place_and_finalize`):
 //!
 //! 1. Open the zip, validate every entry's path is enclosed inside the
 //!    destination (no `..`, no absolute paths).
@@ -563,7 +563,7 @@ pub fn validate_layout(bot_root: &Path) -> Result<()> {
 /// target is most likely not the bot the user meant to install.
 const RECOMMENDED_FILES: [&str; 2] = ["pyproject.toml", "manifest.toml"];
 
-/// Return the [`RECOMMENDED_FILES`] that are *not* present at the top level
+/// Return the `RECOMMENDED_FILES` that are *not* present at the top level
 /// of `bot_root`, in declaration order. An empty vec means the layout looks
 /// like a complete bot.
 pub fn missing_recommended_files(bot_root: &Path) -> Vec<&'static str> {

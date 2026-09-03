@@ -11,7 +11,7 @@
 //! bot can't print extra lines there without desyncing the protocol. stderr
 //! is free-form, so it doubles as an out-of-band notification channel: a bot
 //! emits a single line prefixed with [`NOTIFY_PREFIX`] followed by a
-//! [`Notification`] JSON object, and [`spawn_stderr_pump`] parses it and
+//! [`Notification`] JSON object, and `spawn_stderr_pump` parses it and
 //! forwards it onto the `NotifyBus`. Any other stderr line is logged as
 //! before, so older bots (and plain diagnostics) degrade gracefully.
 

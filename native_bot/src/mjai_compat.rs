@@ -1,9 +1,11 @@
 //! Compatibility fixes applied to incoming mjai events before they reach a
 //! riichienv-core game state.
 //!
-//! Shared by the offline extractor ([`crate::replay`]) and the live engine
+//! Written for upstream's offline extractor as well as the live engine
 //! ([`crate::engine`]), so a log that replays cleanly can also be fed to the
-//! engine without panicking.
+//! engine without panicking. Only the engine ships here; the extractor and its
+//! `replay` module were dropped from this fork, which is why the fixups look
+//! more general than the live path alone needs.
 //!
 //! There are two fixups, and they run at different stages:
 //!

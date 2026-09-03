@@ -267,7 +267,7 @@ fn decode_named_action(name: &str, bytes: &[u8]) -> Result<JsonValue> {
 }
 
 /// Decode a live `.lq.ActionPrototype.data` payload: base64 → XOR-decrypt →
-/// protobuf. The live notify obfuscates the action bytes (see [`wtf_decode`]).
+/// protobuf. The live notify obfuscates the action bytes (see `wtf_decode`).
 pub fn decode_action(name: &str, b64: &str) -> Result<JsonValue> {
     let mut bytes = BASE64
         .decode(b64)
@@ -281,7 +281,7 @@ pub fn decode_action(name: &str, b64: &str) -> Result<JsonValue> {
 ///
 /// Unlike the live `.lq.ActionPrototype.data` notify, actions stored inside a
 /// `GameRestore` are **plain base64 protobuf** — the server does not apply the
-/// position-dependent XOR ([`wtf_decode`]) to them. Running the XOR here would
+/// position-dependent XOR (`wtf_decode`) to them. Running the XOR here would
 /// corrupt the bytes, so this path base64-decodes and protobuf-decodes
 /// directly, with no XOR step.
 pub fn decode_restore_action(name: &str, b64: &str) -> Result<JsonValue> {

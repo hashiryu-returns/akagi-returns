@@ -58,7 +58,7 @@ impl BinaryLogger {
         Ok(())
     }
 
-    /// Like [`log`], but logs a `warn` event on failure rather than returning
+    /// Like [`Self::log`], but logs a `warn` event on failure rather than returning
     /// the error. Convenient for hot paths where logging failure must not
     /// disrupt control flow.
     pub fn write(&self, tag: u8, bytes: &[u8]) {

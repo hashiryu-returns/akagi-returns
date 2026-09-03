@@ -132,7 +132,7 @@ const MAX_TEXT_BYTES: usize = 64 * 1024;
 
 /// Fetch a small text document (e.g. a `.minisig`) trying candidates in
 /// order. Returns the body and its source. Bodies over
-/// [`MAX_TEXT_BYTES`] are rejected.
+/// `MAX_TEXT_BYTES` are rejected.
 pub async fn fetch_text_with_fallback(
     client: &reqwest::Client,
     candidates: &[(String, Source)],
@@ -161,7 +161,7 @@ pub async fn fetch_text_with_fallback(
 /// Stream one of `candidates` into `dest`, trying each in order.
 /// Returns the winning source and the hex SHA-256 of the bytes written.
 /// A partial file from a failed attempt is removed before the next
-/// attempt; each chunk read is bounded by [`CHUNK_STALL_TIMEOUT`].
+/// attempt; each chunk read is bounded by `CHUNK_STALL_TIMEOUT`.
 pub async fn download_with_fallback(
     client: &reqwest::Client,
     candidates: &[(String, Source)],

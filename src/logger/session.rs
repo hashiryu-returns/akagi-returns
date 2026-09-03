@@ -255,7 +255,7 @@ impl Session {
 
     /// Clone of the inspector writer. Call sites are the proxy handler,
     /// chromium capture, mjai-bus subscriber, and bot manager. Cheap
-    /// (Arc<Inner>); each clone independently writes to disk + broadcast.
+    /// (`Arc<Inner>`); each clone independently writes to disk + broadcast.
     pub fn inspector(&self) -> InspectorWriter {
         self.inspector_writer.clone()
     }
