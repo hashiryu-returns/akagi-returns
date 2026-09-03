@@ -262,5 +262,12 @@ Lua scripting interface, and the history format all behave as upstream.
 ## License
 
 Apache-2.0, inherited from [shinkuan/Akagi](https://github.com/shinkuan/Akagi).
-Bundled mjai bots (Mortal) carry their own licenses — see the license files in
-each `mjai_bot/<name>/` directory.
+The full text is in [`LICENSE.txt`](LICENSE.txt), and [`NOTICE`](NOTICE) carries
+the upstream copyright together with the attribution notices for the
+third-party components it builds on — mahjong-helper, RiichiEnv, mahgen,
+MajsoulMax-rs and the mjai protocol among them. Both are reproduced verbatim
+from upstream and should stay that way.
+
+This fork modifies upstream; [what changed](#whats-different-from-the-original)
+is listed above. Bundled mjai bots (Mortal) carry their own licenses — see the
+license files in each `mjai_bot/<name>/` directory.
