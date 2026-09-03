@@ -85,7 +85,7 @@ pub async fn spawn_capture_supervisor(state: AppState) -> Result<()> {
         }
     }
 
-    let (mode, proxy_cfg, chromium_cfg, http_cfg, platform) = {
+    let (mode, proxy_cfg, mut chromium_cfg, http_cfg, platform) = {
         let cfg = state.config.read().await;
         (
             cfg.capture.mode,
@@ -95,6 +95,19 @@ pub async fn spawn_capture_supervisor(state: AppState) -> Result<()> {
             cfg.platform.kind,
         )
     };
+
+    // Applied here rather than at load, so the config the frontend saves back
+    // keeps whatever the file said.
+    if let Some(profile) = state.profile_override.as_deref() {
+        if profile != chromium_cfg.profile {
+            tracing::info!(
+                "browser profile {:?} from --profile (config says {:?})",
+                profile,
+                chromium_cfg.profile
+            );
+        }
+        chromium_cfg.profile = profile.to_string();
+    }
 
     // Build a fresh shutdown token for this run. Stored in
     // `capture_control.stop` as a oneshot-via-Notify shim: command-side

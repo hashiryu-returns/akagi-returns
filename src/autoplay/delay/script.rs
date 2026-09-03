@@ -40,8 +40,10 @@ use tracing::{info, warn};
 
 /// The default delay policy, generated as `delay.lua` next to the
 /// config file on first use (see [`ScriptHost::maybe_reload`]).
-pub const DEFAULT_SCRIPT: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/delay/default.lua"));
+pub const DEFAULT_SCRIPT: &str = include_str!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/assets/delay/default.lua"
+));
 
 /// Every bundled default shipped by an earlier version, verbatim. An
 /// existing `delay.lua` identical (modulo line endings) to one of these

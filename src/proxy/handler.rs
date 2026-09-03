@@ -210,9 +210,7 @@ impl ProxyHandler {
     /// annotation plus an `akagi_blocked` marker): an annotated gap is not a
     /// gap, exactly as with the raw-tunnel bypass in `should_intercept`.
     fn block_telemetry_beacon(&self, req: &Request<Body>) -> Option<Response<Body>> {
-        if annotate::sls::parse_uri(req.uri()).is_none() {
-            return None;
-        }
+        annotate::sls::parse_uri(req.uri())?;
 
         let method = req.method().to_string();
         let url = req.uri().to_string();
@@ -1091,8 +1089,8 @@ fn is_telemetry_connect(method: &Method, uri: &Uri) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        is_ip_literal_host, is_loopback_connect, is_loopback_host,
-        is_telemetry_connect, should_raw_tunnel, will_be_answered_by_handle_response,
+        is_ip_literal_host, is_loopback_connect, is_loopback_host, is_telemetry_connect,
+        should_raw_tunnel, will_be_answered_by_handle_response,
     };
     use crate::config::Platform;
     use hudsucker::hyper::{Method, Request, Uri};

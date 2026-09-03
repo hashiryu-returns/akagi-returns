@@ -29,6 +29,7 @@ pub fn run() {
 
     let args = cli::Cli::parse();
     let (cfg, config_path) = config::load_config(args.config.as_deref());
+    let profile_override = args.profile.clone();
 
     let log_dir = util::resolve_dir(&cfg.logging.dir);
     let targets = [
@@ -182,7 +183,8 @@ pub fn run() {
                     history_store.clone(),
                     history_platform.clone(),
                     runtime.clone(),
-                );
+                )
+                .with_profile_override(profile_override.clone());
 
                 ipc::install(app.handle(), state.clone())?;
 

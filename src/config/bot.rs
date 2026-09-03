@@ -63,7 +63,11 @@ impl std::fmt::Debug for NativeApiConfig {
             .field("base_url", &self.base_url)
             .field(
                 "key",
-                &if self.key.is_empty() { "<empty>" } else { "<set>" },
+                &if self.key.is_empty() {
+                    "<empty>"
+                } else {
+                    "<set>"
+                },
             )
             .field("model_4p", &self.model_4p)
             .field("model_3p", &self.model_3p)
@@ -164,7 +168,10 @@ mod tests {
             !rendered.contains("supersecretkeyvalue"),
             "the key leaked into Debug output: {rendered}"
         );
-        assert!(rendered.contains("<set>"), "expected a placeholder: {rendered}");
+        assert!(
+            rendered.contains("<set>"),
+            "expected a placeholder: {rendered}"
+        );
         // Non-secret fields still have to be readable for the line to be useful.
         assert!(rendered.contains("https://example.invalid"));
 

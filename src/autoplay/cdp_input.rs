@@ -129,4 +129,3 @@ pub async fn evaluate_canvas_rect(page: &Page) -> Result<CanvasRect> {
         .context("canvas rect: deserialise from page value")?;
     Ok(rect)
 }
-

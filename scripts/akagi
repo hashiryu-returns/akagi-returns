@@ -3,6 +3,8 @@
 #
 #   scripts/akagi setup        install the python runtime and frontend deps
 #   scripts/akagi run [args]   build what's missing, then launch
+#     --profile NAME           browser profile for this run, overriding the
+#                              config; each name is its own device_id
 #   scripts/akagi clean        reclaim disk without touching configs/ or data/
 #   scripts/akagi dedupe       hardlink identical files across bot venvs
 #   scripts/akagi doctor       show resolved paths and disk usage
@@ -67,7 +69,8 @@ wire_dirs() {
 # them is a config edit and a restart.
 wire_profiles() {
   local named d name
-  named="$(configured_profile)"
+  # --profile wins over the config file, matching what Akagi itself does.
+  named="${RUN_PROFILE:-$(configured_profile)}"
   [[ -n "$named" ]] && mkdir -p "${ROOT}/data/profiles/${named}"
   link "${ROOT}/data/profiles/default" "${EXE_DIR}/chrome-profile"
   for d in "${ROOT}"/data/profiles/*; do
@@ -176,6 +179,21 @@ cmd_setup() {
 }
 
 cmd_run() {
+  # Peek at --profile so the directory exists and is linked before launch.
+  # The flag is still forwarded; Akagi is what actually acts on it.
+  local i
+  for (( i = 1; i <= $#; i++ )); do
+    case "${!i}" in
+      --profile|-p) RUN_PROFILE="${@:i+1:1}" ;;
+      --profile=*)  RUN_PROFILE="${!i#--profile=}" ;;
+    esac
+  done
+  if [[ -n "${RUN_PROFILE:-}" ]]; then
+    [[ "$RUN_PROFILE" =~ ^[A-Za-z0-9_-]+$ ]] ||
+      die "--profile may only contain letters, digits, '-' and '_' (got '${RUN_PROFILE}')"
+    echo "==> browser profile: ${RUN_PROFILE}"
+  fi
+
   ensure_runtime
   ensure_frontend
   wire_dirs

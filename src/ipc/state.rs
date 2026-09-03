@@ -65,6 +65,13 @@ impl Default for CaptureControl {
 pub struct AppState {
     pub config: Arc<RwLock<AppConfig>>,
     pub config_path: Arc<PathBuf>,
+    /// Browser profile named by `--profile`, applied when capture starts.
+    ///
+    /// Deliberately not folded into `config`: the frontend reads that and
+    /// writes it back on save, so an override living there would be written
+    /// into `config.toml` the first time any unrelated setting changed, and a
+    /// run-scoped identity would quietly become a permanent one.
+    pub profile_override: Option<String>,
     pub log_session: Arc<Session>,
 
     pub mjai_bus: MjaiBus,
@@ -156,6 +163,7 @@ impl AppState {
         Self {
             config: Arc::new(RwLock::new(config)),
             config_path: Arc::new(config_path),
+            profile_override: None,
             log_session,
             mjai_bus,
             post_tracker_bus,
@@ -179,5 +187,13 @@ impl AppState {
             updater_lock: Arc::new(Mutex::new(())),
             pending_update: Arc::new(RwLock::new(None)),
         }
+    }
+
+    /// Point capture at a named browser profile for this run. An empty or
+    /// whitespace-only name is treated as absent, so `--profile ""` means the
+    /// configured value rather than a directory with no name.
+    pub fn with_profile_override(mut self, profile: Option<String>) -> Self {
+        self.profile_override = profile.filter(|p| !p.trim().is_empty());
+        self
     }
 }

@@ -48,6 +48,7 @@ Everything goes through one script:
 | --- | --- |
 | `scripts/akagi setup` | Fetch the bundled python + uv, install frontend deps, build the UI, dedupe bot venvs |
 | `scripts/akagi run` | Build whatever is missing, then launch |
+| `scripts/akagi run --profile NAME` | Same, using a [named browser profile](#browser-profiles) |
 | `scripts/akagi clean` | Reclaim disk. Never touches `configs/` or `data/` |
 | `scripts/akagi dedupe` | Hardlink identical files across bot venvs |
 | `scripts/akagi doctor` | Show resolved paths, installed bots, and disk usage |
@@ -91,9 +92,16 @@ That split is what makes `target/` fully disposable.
 
 ### Browser profiles
 
-`capture.chromium.profile` names a separate browser profile. Directories live
-under `data/profiles/`, one per name, with `default/` used when the setting is
-blank.
+Pass `--profile` at launch to pick a browser profile. Directories live under
+`data/profiles/`, one per name, with `default/` when nothing is given:
+
+```bash
+scripts/akagi run --profile west
+```
+
+The flag overrides `capture.chromium.profile` for that run only and is never
+written back, so the file stays whatever you set it to. Set the config key
+instead if one profile is your normal choice.
 
 The reason to use it is `device_id`: a UUID Mahjong Soul mints on first visit,
 keeps in local storage, and sends with every login. It lives in the profile
@@ -111,7 +119,7 @@ removes one join key rather than all of them.
 
 ```toml
 [capture.chromium]
-profile = "west"      # → data/profiles/west
+profile = "west"      # → data/profiles/west, unless --profile says otherwise
 ```
 
 Names accept letters, digits, `-` and `_`. Anything else is rejected at launch
