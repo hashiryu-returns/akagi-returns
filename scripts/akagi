@@ -5,6 +5,8 @@
 #   scripts/akagi run [args]   build what's missing, then launch
 #     --profile NAME           browser profile for this run, overriding the
 #                              config; each name is its own device_id
+#   scripts/akagi profiles     list browser profiles
+#   scripts/akagi profiles rm NAME   delete one, login and device_id with it
 #   scripts/akagi clean        reclaim disk without touching configs/ or data/
 #   scripts/akagi dedupe       hardlink identical files across bot venvs
 #   scripts/akagi doctor       show resolved paths and disk usage
@@ -240,6 +242,68 @@ cmd_clean() {
   echo "restore with: scripts/akagi setup"
 }
 
+# Deleting a profile is deleting an identity: the session cookie and the
+# device_id Mahjong Soul minted for it both live in the directory, so the next
+# login from a fresh one asks for an emailed code and reports a new device_id.
+# Hence the confirmation, and hence `default` being emptied rather than removed
+# — wire_dirs expects it to exist.
+profiles_rm() {
+  local name="$1" dir size reply
+  [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || die "not a profile name: '${name}'"
+  dir="${ROOT}/data/profiles/${name}"
+  [[ -d "$dir" ]] || die "no such profile: ${name} (try: scripts/akagi profiles)"
+
+  size="$(du -sh "$dir" | awk '{print $1}')"
+  if [[ -z "${ASSUME_YES:-}" ]]; then
+    [[ -t 0 ]] || die "profiles rm needs a terminal, or pass --yes"
+    read -r -p "Delete profile '${name}' (${size})? Its login and device_id go too. [y/N] " reply
+    [[ "$reply" == [yY]* ]] || { echo "kept ${name}"; return 0; }
+  fi
+
+  rm -rf "$dir"
+  if [[ "$name" == default ]]; then
+    mkdir -p "$dir"
+    echo "emptied default (${size} freed)"
+  else
+    rm -f "${EXE_DIR}/chrome-profile-${name}"
+    echo "removed ${name} (${size} freed)"
+  fi
+}
+
+profiles_list() {
+  local configured d name mark
+  configured="$(configured_profile)"
+  [[ -d "${ROOT}/data/profiles" ]] || { echo "no profiles yet"; return 0; }
+  printf '%-20s %8s  %s\n' NAME SIZE 'LAST USED'
+  for d in "${ROOT}"/data/profiles/*/; do
+    [[ -d "$d" ]] || continue
+    name="$(basename "$d")"
+    mark=""
+    [[ "$name" == "${configured:-default}" ]] && mark='  <- config default'
+    printf '%-20s %8s  %s%s\n' "$name" \
+      "$(du -sh "$d" | awk '{print $1}')" \
+      "$(date -r "$d" '+%Y-%m-%d %H:%M')" "$mark"
+  done
+  echo
+  echo "use one with: scripts/akagi run --profile NAME"
+}
+
+cmd_profiles() {
+  local sub="${1:-list}"; [[ $# -gt 0 ]] && shift
+  # --yes anywhere, so `profiles rm foo --yes` and `--yes rm foo` both work.
+  local args=() a
+  for a in "$@"; do
+    case "$a" in --yes|-y) ASSUME_YES=1 ;; *) args+=("$a") ;; esac
+  done
+  case "$sub" in
+    list|ls) profiles_list ;;
+    rm|remove|delete)
+      [[ ${#args[@]} -gt 0 ]] || die "profiles rm needs a name (try: scripts/akagi profiles)"
+      for a in "${args[@]}"; do profiles_rm "$a"; done ;;
+    *) die "unknown: profiles ${sub} (try: list, rm NAME)" ;;
+  esac
+}
+
 cmd_doctor() {
   echo "root:   ${ROOT}"
   echo "target: ${HOST_TRIPLE}"
@@ -269,8 +333,12 @@ case "${1:-}" in
   clean)  shift; cmd_clean "$@" ;;
   dedupe) shift; cmd_dedupe "$@" ;;
   doctor) shift; cmd_doctor "$@" ;;
+  profiles|profile) shift; cmd_profiles "$@" ;;
   ''|-h|--help)
-    sed -n '2,11p' "$0" | sed 's|^# \{0,1\}||'
+    # The usage block: comment lines from 2 up to the blank one that closes it,
+    # rather than a line range that silently truncates whenever it moves.
+    awk 'NR == 1 { next } !/^#/ { exit }
+         { sub(/^# ?/, ""); if ($0 == "" && seen) exit; if (/scripts\/akagi/) seen = 1; print }' "$0"
     ;;
   *) die "unknown command: $1 (try --help)" ;;
 esac

@@ -49,6 +49,7 @@ Everything goes through one script:
 | `scripts/akagi setup` | Fetch the bundled python + uv, install frontend deps, build the UI, dedupe bot venvs |
 | `scripts/akagi run` | Build whatever is missing, then launch |
 | `scripts/akagi run --profile NAME` | Same, using a [named browser profile](#browser-profiles) |
+| `scripts/akagi profiles` | List those profiles; `profiles rm NAME` [deletes one](#listing-and-deleting-profiles) |
 | `scripts/akagi clean` | Reclaim disk. Never touches `configs/` or `data/` |
 | `scripts/akagi dedupe` | Hardlink identical files across bot venvs |
 | `scripts/akagi doctor` | Show resolved paths, installed bots, and disk usage |
@@ -125,6 +126,31 @@ profile = "west"      # → data/profiles/west, unless --profile says otherwise
 Names accept letters, digits, `-` and `_`. Anything else is rejected at launch
 rather than quietly rewritten, since a silently different directory would mean a
 silently different `device_id`.
+
+**A name is created on first use, not declared in advance.** Running
+`--profile west` when no `west` exists makes it, logged out and with a fresh
+`device_id`; there is no error and nothing to register beforehand. Omitting the
+flag entirely uses `default`, which is created the same way. Come back to the
+same name and you get the same directory, so the login, the verification you
+already passed, and the `device_id` all persist — that persistence is the whole
+point, and it is why a typo in a name is worth avoiding: it silently starts a
+new identity rather than resuming the one you meant.
+
+### Listing and deleting profiles
+
+```bash
+scripts/akagi profiles              # name, size, when last used
+scripts/akagi profiles rm west      # asks first; --yes to skip
+```
+
+Deleting is deleting an identity, not clearing a cache: the session and the
+`device_id` live in the directory and go with it, so the next login on that name
+is a new device asking for a new emailed code. Useful when retiring an account,
+and the only way to make a name mint a fresh `device_id`.
+
+`rm default` empties that profile rather than removing the directory, since the
+launcher expects it to exist. The effect is the same — a clean slate on the next
+run.
 
 ## Timing profiles
 
